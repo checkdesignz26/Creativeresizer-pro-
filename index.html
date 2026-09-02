@@ -1354,33 +1354,6 @@ window.addEventListener("load", () => {
     margin: 0 auto;
 }
 /* ===================================================== */
-/* Preview Mode Tabs */
-/* ===================================================== */
-
-.preview-mode-tabs{
-    display:flex;
-    justify-content:center;
-    gap:12px;
-    margin-bottom:16px;
-}
-
-.preview-tab{
-    padding:10px 18px;
-    border:none;
-    border-radius:999px;
-    background:#ececec;
-    color:#333;
-    font-weight:600;
-    cursor:pointer;
-    transition:all .2s ease;
-}
-
-.preview-tab.active{
-    background:#5f6df5;
-    color:white;
-}
-
-/* ===================================================== */
 /* Product-owned mock-up toggles (ported from index137)   */
 /* ===================================================== */
 .product-preview-mode-toggle,
@@ -1625,23 +1598,6 @@ window.addEventListener("load", () => {
 </div>
 
 <div class="zoom-preview-info" id="zoomInfo"></div>
-<!-- ===================================================== -->
-<!-- Preview Mode Tabs -->
-<!-- ===================================================== -->
-
-<div class="preview-mode-tabs">
-
-    <button
-        id="patternPreviewTab"
-        class="preview-tab active"
-        type="button"
-        onclick="showOriginalPatternZoom()">
-
-        🖼 Pattern
-
-    </button>
-
-</div>
 <div class="preview-only-close-wrap">
 <button class="preview-only-close-btn" id="previewOnlyCloseBtn" type="button">close</button>
 </div>
