@@ -4628,7 +4628,7 @@ window.updateSelectedSummary = window.updateSelectedSummary || function updateSe
   if (!countEl) return;
   const boxes = Array.from(document.querySelectorAll('.product-checkbox'));
   const checked = boxes.filter(cb => cb.checked);
-  const hasImage = !!(window.originalImg || document.getElementById('previewSection')?.style.display !== 'none');
+  const hasImage = typeof originalImg !== 'undefined' && !!originalImg;
   countEl.textContent = hasImage ? `${checked.length}/${boxes.length}` : '0/0';
   if (downloadBtnEl) downloadBtnEl.disabled = !hasImage || checked.length === 0;
 };
@@ -4641,7 +4641,7 @@ window.addEventListener('load', () => {
 
   const syncCounterDisplay = () => {
     if (!countEl) return;
-    const hasImage = !!window.originalImg;
+    const hasImage = typeof originalImg !== 'undefined' && !!originalImg;
     if (!hasImage) {
       countEl.textContent = '0/0';
       return;
