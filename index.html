@@ -257,27 +257,17 @@ window.addEventListener("load", () => {
         .upload-remove-btn {
             margin: 0;
         }
-        .pattern-library-row {
-            margin-top: 12px;
-            text-align: left;
-        }
-        .pattern-library-row.hidden { display: none; }
-        .pattern-library-row label {
-            display: block;
-            font-size: 11px;
-            color: #aaa;
-            margin-bottom: 5px;
-            font-family: 'Quicksand', sans-serif;
-        }
         .pattern-library-strip {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             overflow-x: auto;
-            padding: 4px 2px 8px;
+            padding: 4px 2px 10px;
         }
+        .pattern-library-strip.hidden { display: none; }
         .pattern-library-tile {
+            position: relative;
             flex: 0 0 auto;
-            width: 56px;
+            width: 60px;
             text-align: center;
             cursor: pointer;
             background: none;
@@ -287,8 +277,8 @@ window.addEventListener("load", () => {
             font-family: 'Quicksand', sans-serif;
         }
         .pattern-library-tile img {
-            width: 52px;
-            height: 52px;
+            width: 56px;
+            height: 56px;
             object-fit: cover;
             border-radius: 12px;
             border: 2px solid #4a4a8a;
@@ -314,6 +304,39 @@ window.addEventListener("load", () => {
         .pattern-library-tile.active .pattern-library-tile-name {
             color: #e0d9ff;
             font-weight: 600;
+        }
+        .pattern-library-tile-remove {
+            position: absolute;
+            top: -4px;
+            right: 2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff6b6b !important;
+            color: #fff !important;
+            font-size: 10px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            min-width: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+        }
+        .pattern-library-tile-badge {
+            position: absolute;
+            bottom: 20px;
+            right: 2px;
+            min-width: 15px;
+            height: 15px;
+            padding: 0 3px;
+            border-radius: 999px;
+            background: #6be08a;
+            color: #0a0a1a;
+            font-size: 9px;
+            font-weight: 700;
+            line-height: 15px;
+            text-align: center;
         }
 
         .upload-box {
@@ -637,20 +660,20 @@ window.addEventListener("load", () => {
             font-family: 'Quicksand', sans-serif;
         }
 
-        .batch-resize-box {
+        .pattern-tray-box {
             background: rgba(30, 42, 74, 0.5);
             border-radius: 24px;
             padding: 15px;
             margin-bottom: 15px;
         }
-        .batch-resize-box label {
+        .pattern-tray-box label {
             display: block;
             font-size: 12px;
             color: #aaa;
             margin-bottom: 6px;
             font-family: 'Quicksand', sans-serif;
         }
-        .batch-resize-help {
+        .pattern-tray-help {
             font-size: 11px;
             color: rgba(255,255,255,0.68);
             line-height: 1.4;
@@ -664,62 +687,13 @@ window.addEventListener("load", () => {
             color: #e0d9ff;
             font-weight: 600;
         }
-        .batch-file-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin: 10px 0;
-        }
-        .batch-file-list:empty { margin: 0; }
-        .batch-file-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(10,10,26,.4);
-            border: 1px solid rgba(138, 122, 255, 0.25);
-            border-radius: 14px;
-            padding: 6px 10px 6px 6px;
-            font-size: 12px;
-            font-family: 'Quicksand', sans-serif;
-        }
-        .batch-file-thumb {
-            flex: 0 0 auto;
-            width: 34px;
-            height: 34px;
-            object-fit: cover;
-            border-radius: 8px;
-            background: #0a0a1a;
-        }
-        .batch-file-row .batch-file-name {
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: #ececec;
-        }
-        .batch-file-row.batch-file-error .batch-file-name { color: #ff9b9b; }
-        .batch-file-row.batch-file-done .batch-file-name { color: #9be89b; }
-        .batch-file-remove {
-            background: #ff6b6b !important;
-            color: #fff !important;
-            width: 22px;
-            height: 22px;
-            min-width: 0;
-            padding: 0;
-            border-radius: 50%;
-            font-size: 12px;
-            line-height: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
         .batch-process-btn {
             width: 100%;
+            margin-top: 8px;
             background: linear-gradient(135deg, #8a7aff, #6b5fd3);
             font-weight: 600;
         }
+        .batch-process-btn.hidden { display: none; }
         .batch-progress {
             margin-top: 10px;
             font-size: 12px;
@@ -1594,22 +1568,18 @@ window.addEventListener("load", () => {
 <button class="replace-btn" id="replaceBtn" type="button">↻ replace pattern</button>
 <button class="remove-btn upload-remove-btn" id="removeBtn" type="button">✖ remove pattern</button>
 </div>
-<div class="pattern-library-row hidden" id="patternLibraryRow">
-<label>🖼 viewing pattern</label>
-<div class="pattern-library-strip" id="patternLibraryStrip"></div>
-</div>
 </div>
 </div>
 </div>
 <div class="privacy-note">🔒 Your pattern stays private. Images are processed in your browser and never stored.</div>
 
-<div class="batch-resize-box" id="batchResizeBox">
-  <label>📦 batch resize</label>
-  <div class="batch-resize-help">Upload one pattern above and select the products you want. Then add more pattern images here to generate those same sizes for every one — all in a single ZIP.</div>
+<div class="pattern-tray-box" id="patternTrayBox">
+  <label>🖼 your patterns</label>
+  <div class="pattern-tray-help">Click a pattern below to preview it and choose its products — your choice is remembered. Add more, then download everything at once.</div>
+  <div class="pattern-library-strip hidden" id="patternLibraryStrip"></div>
   <input accept="image/png,image/jpeg,image/jpg,image/webp" id="batchFileInput" multiple="" style="display:none;" type="file"/>
-  <button class="batch-add-btn" id="batchAddBtn" type="button">+ add pattern images</button>
-  <div class="batch-file-list" id="batchFileList"></div>
-  <button class="batch-process-btn" disabled="" id="batchProcessBtn" type="button">process batch → download ZIP</button>
+  <button class="batch-add-btn" id="batchAddBtn" type="button">+ add more patterns</button>
+  <button class="batch-process-btn hidden" id="downloadAllPatternsBtn" type="button">⬇ download all patterns</button>
   <div class="batch-progress hidden" id="batchProgress"></div>
 </div>
 
@@ -5683,102 +5653,185 @@ window.addEventListener('load', () => {
 </script>
 
 <script>
-    // Batch resize: run the same selected products across several pattern
-    // images in one pass, reusing the exact single-image pipeline
-    // (loadImage + exportProductBlob) so output quality matches a normal
-    // single-image export.
+    // Image tray: every pattern loaded this session (initial upload, replace,
+    // or added via "+ add more patterns") lives here. Click a tile to preview
+    // it and choose its own products - that choice is remembered per pattern.
+    // "download all patterns" then exports every pattern using its own saved
+    // selection into one ZIP, reusing the exact single-image pipeline
+    // (loadImage + exportProductBlob) for each so output quality matches a
+    // normal single-image export.
 
-    let batchFiles = [];
+    let imageTray = []; // { label, file, thumb, selectedNames }
+    let currentPatternLabel = null;
+    let trayBusy = false;
 
+    const patternLibraryStrip = document.getElementById('patternLibraryStrip');
     const batchFileInput = document.getElementById('batchFileInput');
     const batchAddBtn = document.getElementById('batchAddBtn');
-    const batchFileList = document.getElementById('batchFileList');
-    const batchProcessBtn = document.getElementById('batchProcessBtn');
+    const downloadAllPatternsBtn = document.getElementById('downloadAllPatternsBtn');
     const batchProgress = document.getElementById('batchProgress');
 
-    function renderBatchFileList() {
-        if (!batchFileList) return;
-        batchFileList.innerHTML = batchFiles.map((entry, i) => `
-            <div class="batch-file-row" data-batch-idx="${i}">
-                <img class="batch-file-thumb" src="${entry.previewUrl}" alt="">
-                <span class="batch-file-name">${String(entry.file.name).replace(/</g, '&lt;')}</span>
-                <button class="batch-file-remove" type="button" data-batch-remove="${i}">✖</button>
-            </div>
-        `).join('');
-        batchFileList.querySelectorAll('[data-batch-remove]').forEach(btn => {
-            btn.onclick = () => {
-                const idx = parseInt(btn.dataset.batchRemove, 10);
-                URL.revokeObjectURL(batchFiles[idx].previewUrl);
-                batchFiles.splice(idx, 1);
-                renderBatchFileList();
-                updateBatchProcessButton();
-            };
-        });
-        if (batchProcessBtn) batchProcessBtn.textContent = batchFiles.length
-            ? `process ${batchFiles.length} image${batchFiles.length > 1 ? 's' : ''} → download ZIP`
-            : 'process batch → download ZIP';
+    function sameFileRef(a, b) {
+        return !!a && !!b && a.name === b.name && a.size === b.size;
     }
 
-    function updateBatchProcessButton() {
-        if (!batchProcessBtn) return;
-        batchProcessBtn.disabled = batchFiles.length === 0;
+    function escapeAttr(s) {
+        return String(s).replace(/"/g, '&quot;');
     }
+
+    function escapeHtml(s) {
+        return String(s).replace(/</g, '&lt;');
+    }
+
+    function snapshotSelectionNames() {
+        const names = [];
+        for (let i = 0; i < products.length; i++) if (selected[i]) names.push(products[i].name);
+        return names;
+    }
+
+    function applySelectionNames(names) {
+        const set = new Set(names || []);
+        for (let i = 0; i < products.length; i++) selected[i] = set.has(products[i].name);
+    }
+
+    function addToTray(file) {
+        if (!file) return null;
+        let entry = imageTray.find(e => sameFileRef(e.file, file));
+        if (!entry) {
+            let label = file.name;
+            let n = 2;
+            while (imageTray.some(e => e.label === label)) {
+                label = `${file.name} (${n})`;
+                n++;
+            }
+            entry = { label, file, thumb: URL.createObjectURL(file), selectedNames: [] };
+            imageTray.push(entry);
+        }
+        return entry;
+    }
+
+    function removeFromTray(label) {
+        const idx = imageTray.findIndex(e => e.label === label);
+        if (idx === -1) return;
+        URL.revokeObjectURL(imageTray[idx].thumb);
+        if (imageTray[idx].label === currentPatternLabel) currentPatternLabel = null;
+        imageTray.splice(idx, 1);
+        renderTrayStrip();
+    }
+
+    function renderTrayStrip() {
+        if (!patternLibraryStrip) return;
+        const activeEntry = imageTray.find(e => e.label === currentPatternLabel);
+        if (activeEntry) activeEntry.selectedNames = snapshotSelectionNames();
+        patternLibraryStrip.innerHTML = imageTray.map(entry => `
+            <div class="pattern-library-tile${entry.label === currentPatternLabel ? ' active' : ''}" data-pattern-label="${escapeAttr(entry.label)}" title="${escapeAttr(entry.label)}">
+                <img src="${entry.thumb}" alt="${escapeAttr(entry.label)}">
+                <div class="pattern-library-tile-name">${escapeHtml(entry.label)}</div>
+                ${entry.selectedNames.length ? `<div class="pattern-library-tile-badge">${entry.selectedNames.length}</div>` : ''}
+                <button class="pattern-library-tile-remove" type="button" data-remove-label="${escapeAttr(entry.label)}" title="remove from tray">✖</button>
+            </div>
+        `).join('');
+        patternLibraryStrip.querySelectorAll('[data-pattern-label]').forEach(tile => {
+            tile.onclick = (e) => {
+                if (e.target.closest('[data-remove-label]')) return;
+                const entry = imageTray.find(en => en.label === tile.dataset.patternLabel);
+                if (entry) {
+                    showToast(`✧ Loading ${entry.label}… ✧`, 1200);
+                    goToPattern(entry.file).catch(err => {
+                        console.error('Could not switch pattern:', err);
+                        alert('Could not load that pattern: ' + (err && err.message ? err.message : err));
+                    });
+                }
+            };
+        });
+        patternLibraryStrip.querySelectorAll('[data-remove-label]').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                removeFromTray(btn.dataset.removeLabel);
+            };
+        });
+        const twoOrMore = imageTray.length >= 2;
+        patternLibraryStrip.classList.toggle('hidden', !twoOrMore);
+        if (downloadAllPatternsBtn) downloadAllPatternsBtn.classList.toggle('hidden', !twoOrMore);
+    }
+
+    const loadImageOriginal = loadImage;
+
+    async function goToPattern(file) {
+        if (!file || trayBusy) return;
+        const targetEntry = imageTray.find(e => sameFileRef(e.file, file));
+        if (targetEntry && targetEntry.label === currentPatternLabel) return;
+
+        trayBusy = true;
+        if (patternLibraryStrip) patternLibraryStrip.style.opacity = '0.5';
+        const productsTopbar = document.querySelector('.content-scroll');
+        if (productsTopbar) productsTopbar.style.pointerEvents = 'none';
+        try {
+            const outgoingEntry = imageTray.find(e => e.label === currentPatternLabel);
+            if (outgoingEntry) outgoingEntry.selectedNames = snapshotSelectionNames();
+
+            await loadImageOriginal(file);
+
+            const entry = addToTray(file);
+            currentPatternLabel = entry.label;
+            applySelectionNames(entry.selectedNames);
+            renderProductGrid();
+            updateCounts();
+            if (typeof updateSelectedSummary === 'function') updateSelectedSummary();
+            renderTrayStrip();
+        } finally {
+            trayBusy = false;
+            if (patternLibraryStrip) patternLibraryStrip.style.opacity = '';
+            if (productsTopbar) productsTopbar.style.pointerEvents = '';
+        }
+    }
+
+    loadImage = goToPattern;
 
     if (batchAddBtn && batchFileInput) {
         batchAddBtn.onclick = () => batchFileInput.click();
-        batchFileInput.onchange = (e) => {
+        batchFileInput.onchange = async (e) => {
             const picked = Array.from(e.target.files || []);
-            picked.forEach(file => {
-                const alreadyAdded = batchFiles.some(entry => entry.file.name === file.name && entry.file.size === file.size);
-                if (!alreadyAdded) batchFiles.push({ file, previewUrl: URL.createObjectURL(file) });
-            });
             batchFileInput.value = '';
-            renderBatchFileList();
-            updateBatchProcessButton();
+            if (picked.length === 0) return;
+            if (!originalImg) {
+                const first = picked.shift();
+                try {
+                    await goToPattern(first);
+                } catch (err) {
+                    console.error('Could not load pattern:', err);
+                    alert('Could not load that pattern: ' + (err && err.message ? err.message : err));
+                }
+            }
+            picked.forEach(file => addToTray(file));
+            renderTrayStrip();
         };
     }
 
-    function getSelectedBatchItems() {
-        const items = [];
-        for (let i = 0; i < products.length; i++) {
-            if (selected[i] && isVisibleProductIndex(i)) items.push({ index: i, name: products[i].name });
-        }
-        return items;
-    }
-
-    function setBatchRowStatus(idx, status) {
-        const row = batchFileList && batchFileList.querySelector(`[data-batch-idx="${idx}"]`);
-        if (!row) return;
-        row.classList.remove('batch-file-error', 'batch-file-done');
-        if (status === 'error') row.classList.add('batch-file-error');
-        if (status === 'done') row.classList.add('batch-file-done');
-    }
-
-    if (batchProcessBtn) {
-        batchProcessBtn.onclick = async () => {
-            if (!originalImg) {
-                alert('Upload a pattern above first.');
-                return;
-            }
-            const itemsToExport = getSelectedBatchItems();
-            if (itemsToExport.length === 0) {
-                alert('Select at least one product above before running the batch.');
-                return;
-            }
-            if (batchFiles.length === 0) return;
+    if (downloadAllPatternsBtn) {
+        downloadAllPatternsBtn.onclick = async () => {
+            if (imageTray.length < 2 || trayBusy) return;
             if (typeof JSZip === 'undefined') {
-                alert('Could not start the batch: the ZIP library failed to load. Check your connection and reload the page.');
+                alert('Could not start the download: the ZIP library failed to load. Check your connection and reload the page.');
                 return;
             }
 
-            const restoreDataUrl = originalSourceDataUrl;
-            const restoreFileName = sourceFileName || 'pattern';
-            const restoreMime = sourceFileMime || 'image/png';
+            const outgoingEntry = imageTray.find(e => e.label === currentPatternLabel);
+            if (outgoingEntry) outgoingEntry.selectedNames = snapshotSelectionNames();
 
+            const withSelections = imageTray.filter(e => e.selectedNames.length > 0);
+            if (withSelections.length === 0) {
+                alert('Choose products for at least one pattern first — click a pattern above, then check the sizes you want.');
+                return;
+            }
+
+            const startingLabel = currentPatternLabel;
             const format = outputFormatSelect.value;
             const ext = format === 'jpeg' ? 'jpg' : format;
+            const skipped = imageTray.length - withSelections.length;
 
-            batchProcessBtn.disabled = true;
+            trayBusy = true;
+            downloadAllPatternsBtn.disabled = true;
             if (batchProgress) batchProgress.classList.remove('hidden');
 
             let succeeded = 0;
@@ -5801,13 +5854,17 @@ window.addEventListener('load', () => {
                     zip.file(finalPath, blob);
                 }
 
-                for (let i = 0; i < batchFiles.length; i++) {
-                    const file = batchFiles[i].file;
-                    if (batchProgress) batchProgress.textContent = `Processing ${i + 1}/${batchFiles.length}: ${file.name}…`;
+                for (let i = 0; i < withSelections.length; i++) {
+                    const entry = withSelections[i];
+                    if (batchProgress) batchProgress.textContent = `Processing ${i + 1}/${withSelections.length}: ${entry.label}…`;
                     try {
-                        await loadImage(file);
-                        const currentItems = getSelectedBatchItems();
-                        const baseName = file.name.replace(/\.[^.]+$/, '');
+                        await loadImageOriginal(entry.file);
+                        applySelectionNames(entry.selectedNames);
+                        const currentItems = [];
+                        for (let pi = 0; pi < products.length; pi++) {
+                            if (selected[pi] && isVisibleProductIndex(pi)) currentItems.push({ index: pi, name: products[pi].name });
+                        }
+                        const baseName = entry.file.name.replace(/\.[^.]+$/, '');
                         const safeBase = baseName.replace(/[^a-z0-9_-]/gi, '_').toLowerCase() || `image_${i + 1}`;
                         const singleProduct = currentItems.length === 1;
                         for (const item of currentItems) {
@@ -5819,143 +5876,46 @@ window.addEventListener('load', () => {
                             addUniqueZipPath(path, blob);
                         }
                         succeeded++;
-                        setBatchRowStatus(i, 'done');
                     } catch (err) {
-                        console.error('Batch item failed:', file.name, err);
-                        failedNames.push(file.name);
-                        setBatchRowStatus(i, 'error');
+                        console.error('Download-all item failed:', entry.label, err);
+                        failedNames.push(entry.label);
                     }
                 }
 
                 if (succeeded > 0) {
                     if (batchProgress) batchProgress.textContent = 'Zipping files…';
                     const zipBlob = await zip.generateAsync({ type: 'blob', mimeType: 'application/zip' });
-                    await triggerDownload(zipBlob, `batch_resize_${succeeded}_image${succeeded > 1 ? 's' : ''}.zip`);
-                    showToast(failedNames.length
-                        ? `✅ Batch done — ${succeeded} succeeded, ${failedNames.length} failed`
-                        : `✅ Batch done — ${succeeded} image${succeeded > 1 ? 's' : ''} exported!`, 3000);
+                    await triggerDownload(zipBlob, `patterns_${succeeded}_image${succeeded > 1 ? 's' : ''}.zip`);
+                    const bits = [`${succeeded} exported`];
+                    if (failedNames.length) bits.push(`${failedNames.length} failed`);
+                    if (skipped) bits.push(`${skipped} skipped (no products chosen)`);
+                    showToast(`✅ ${bits.join(' · ')}`, 3500);
                 } else {
-                    alert('Batch failed — none of the images could be processed.');
+                    alert('Download failed — none of the patterns could be processed.');
                 }
             } catch (err) {
-                console.error('Batch processing failed:', err);
-                alert('Batch processing failed: ' + (err && err.message ? err.message : err));
+                console.error('Download all failed:', err);
+                alert('Download failed: ' + (err && err.message ? err.message : err));
             } finally {
-                if (restoreDataUrl) {
+                const restoreEntry = imageTray.find(e => e.label === startingLabel) || imageTray[0];
+                if (restoreEntry) {
                     try {
-                        const restoredBlob = dataUrlToBlob(restoreDataUrl);
-                        const restoredFile = new File([restoredBlob], restoreFileName, { type: restoreMime });
-                        await loadImage(restoredFile);
+                        await loadImageOriginal(restoreEntry.file);
+                        currentPatternLabel = restoreEntry.label;
+                        applySelectionNames(restoreEntry.selectedNames);
+                        renderProductGrid();
+                        updateCounts();
+                        if (typeof updateSelectedSummary === 'function') updateSelectedSummary();
                     } catch (err) {
-                        console.error('Could not restore previous pattern after batch:', err);
+                        console.error('Could not restore active pattern after download-all:', err);
                     }
                 }
                 if (batchProgress) batchProgress.classList.add('hidden');
-                batchFiles.forEach(entry => URL.revokeObjectURL(entry.previewUrl));
-                batchFiles = [];
-                renderBatchFileList();
-                updateBatchProcessButton();
+                trayBusy = false;
+                downloadAllPatternsBtn.disabled = false;
+                renderTrayStrip();
             }
         };
-    }
-</script>
-
-<script>
-    // Pattern library: remember every pattern loaded this session (initial
-    // upload, replace, or via batch resize) so switching to a new one never
-    // means losing access to the previous ones - pick any of them back from
-    // a thumbnail strip instead of having to re-upload.
-
-    let patternLibrary = []; // { label, file, thumb }
-    let patternLibraryBusy = false;
-    let currentPatternLabel = null;
-
-    const patternLibraryRow = document.getElementById('patternLibraryRow');
-    const patternLibraryStrip = document.getElementById('patternLibraryStrip');
-
-    function sameFileRef(a, b) {
-        return !!a && !!b && a.name === b.name && a.size === b.size;
-    }
-
-    function makeThumbDataUrl(sourceImg, size = 120) {
-        if (!sourceImg) return '';
-        try {
-            const sw = sourceImg.naturalWidth || sourceImg.width || 1;
-            const sh = sourceImg.naturalHeight || sourceImg.height || 1;
-            const scale = Math.max(size / sw, size / sh);
-            const dw = sw * scale;
-            const dh = sh * scale;
-            const canvas = document.createElement('canvas');
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext('2d');
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.drawImage(sourceImg, (size - dw) / 2, (size - dh) / 2, dw, dh);
-            return canvas.toDataURL('image/jpeg', 0.82);
-        } catch (err) {
-            console.error('Could not build pattern thumbnail:', err);
-            return '';
-        }
-    }
-
-    function renderPatternLibraryStrip(activeFile) {
-        if (!patternLibraryStrip) return;
-        const activeEntry = activeFile ? patternLibrary.find(entry => sameFileRef(entry.file, activeFile)) : null;
-        currentPatternLabel = activeEntry ? activeEntry.label : currentPatternLabel;
-        patternLibraryStrip.innerHTML = patternLibrary.map(entry => `
-            <button class="pattern-library-tile${entry === activeEntry ? ' active' : ''}" type="button" data-pattern-label="${entry.label.replace(/"/g, '&quot;')}" title="${entry.label.replace(/"/g, '&quot;')}">
-                ${entry.thumb ? `<img src="${entry.thumb}" alt="${entry.label.replace(/"/g, '&quot;')}">` : `<img alt="${entry.label.replace(/"/g, '&quot;')}">`}
-                <div class="pattern-library-tile-name">${entry.label}</div>
-            </button>
-        `).join('');
-        patternLibraryStrip.querySelectorAll('[data-pattern-label]').forEach(tile => {
-            tile.onclick = () => switchToLibraryPattern(tile.dataset.patternLabel);
-        });
-        if (patternLibraryRow) patternLibraryRow.classList.toggle('hidden', patternLibrary.length < 2);
-    }
-
-    function addToPatternLibrary(file) {
-        if (!file) return;
-        if (patternLibrary.some(entry => sameFileRef(entry.file, file))) {
-            renderPatternLibraryStrip(file);
-            return;
-        }
-        let label = file.name;
-        let n = 2;
-        while (patternLibrary.some(entry => entry.label === label)) {
-            label = `${file.name} (${n})`;
-            n++;
-        }
-        const thumbSource = uploadedOriginalPreviewImg || originalImg;
-        const thumb = makeThumbDataUrl(thumbSource);
-        patternLibrary.push({ label, file, thumb });
-        renderPatternLibraryStrip(file);
-    }
-
-    const loadImageWithLibraryTracking = loadImage;
-    loadImage = async function(file) {
-        const result = await loadImageWithLibraryTracking(file);
-        addToPatternLibrary(file);
-        return result;
-    };
-
-    async function switchToLibraryPattern(label) {
-        if (patternLibraryBusy || label === currentPatternLabel) return;
-        const entry = patternLibrary.find(e => e.label === label);
-        if (!entry) return;
-        patternLibraryBusy = true;
-        if (patternLibraryStrip) patternLibraryStrip.style.opacity = '0.5';
-        try {
-            showToast(`✧ Loading ${entry.label}… ✧`, 1200);
-            await loadImage(entry.file);
-        } catch (err) {
-            console.error('Could not switch pattern:', err);
-            alert('Could not load that pattern: ' + (err && err.message ? err.message : err));
-        } finally {
-            patternLibraryBusy = false;
-            if (patternLibraryStrip) patternLibraryStrip.style.opacity = '';
-        }
     }
 </script>
 
