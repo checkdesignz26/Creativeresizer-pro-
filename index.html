@@ -269,15 +269,51 @@ window.addEventListener("load", () => {
             margin-bottom: 5px;
             font-family: 'Quicksand', sans-serif;
         }
-        .pattern-library-row select {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 40px;
-            border: 1px solid #4a4a8a;
-            background: #16213e;
-            color: white;
-            font-size: 13px;
+        .pattern-library-strip {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 2px 8px;
+        }
+        .pattern-library-tile {
+            flex: 0 0 auto;
+            width: 56px;
+            text-align: center;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
             font-family: 'Quicksand', sans-serif;
+        }
+        .pattern-library-tile img {
+            width: 52px;
+            height: 52px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 2px solid #4a4a8a;
+            background: #0a0a1a;
+            display: block;
+            margin: 0 auto 4px;
+            transition: all 0.2s;
+        }
+        .pattern-library-tile:hover img {
+            border-color: #8a7aff;
+        }
+        .pattern-library-tile.active img {
+            border-color: #8a7aff;
+            box-shadow: 0 0 0 2px rgba(138, 122, 255, 0.45);
+        }
+        .pattern-library-tile-name {
+            font-size: 9px;
+            color: rgba(255,255,255,0.7);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .pattern-library-tile.active .pattern-library-tile-name {
+            color: #e0d9ff;
+            font-weight: 600;
         }
 
         .upload-box {
@@ -1550,8 +1586,8 @@ window.addEventListener("load", () => {
 <button class="remove-btn upload-remove-btn" id="removeBtn" type="button">✖ remove pattern</button>
 </div>
 <div class="pattern-library-row hidden" id="patternLibraryRow">
-<label for="patternLibrarySelect">🖼 viewing pattern</label>
-<select id="patternLibrarySelect"></select>
+<label>🖼 viewing pattern</label>
+<div class="pattern-library-strip" id="patternLibraryStrip"></div>
 </div>
 </div>
 </div>
@@ -5816,31 +5852,61 @@ window.addEventListener('load', () => {
     // Pattern library: remember every pattern loaded this session (initial
     // upload, replace, or via batch resize) so switching to a new one never
     // means losing access to the previous ones - pick any of them back from
-    // the dropdown instead of having to re-upload.
+    // a thumbnail strip instead of having to re-upload.
 
-    let patternLibrary = []; // { label, file }
+    let patternLibrary = []; // { label, file, thumb }
+    let patternLibraryBusy = false;
+    let currentPatternLabel = null;
 
     const patternLibraryRow = document.getElementById('patternLibraryRow');
-    const patternLibrarySelect = document.getElementById('patternLibrarySelect');
+    const patternLibraryStrip = document.getElementById('patternLibraryStrip');
 
     function sameFileRef(a, b) {
         return !!a && !!b && a.name === b.name && a.size === b.size;
     }
 
-    function renderPatternLibrarySelect(activeFile) {
-        if (!patternLibrarySelect) return;
-        patternLibrarySelect.innerHTML = patternLibrary.map(entry =>
-            `<option value="${entry.label.replace(/"/g, '&quot;')}">${entry.label}</option>`
-        ).join('');
+    function makeThumbDataUrl(sourceImg, size = 120) {
+        if (!sourceImg) return '';
+        try {
+            const sw = sourceImg.naturalWidth || sourceImg.width || 1;
+            const sh = sourceImg.naturalHeight || sourceImg.height || 1;
+            const scale = Math.max(size / sw, size / sh);
+            const dw = sw * scale;
+            const dh = sh * scale;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(sourceImg, (size - dw) / 2, (size - dh) / 2, dw, dh);
+            return canvas.toDataURL('image/jpeg', 0.82);
+        } catch (err) {
+            console.error('Could not build pattern thumbnail:', err);
+            return '';
+        }
+    }
+
+    function renderPatternLibraryStrip(activeFile) {
+        if (!patternLibraryStrip) return;
         const activeEntry = activeFile ? patternLibrary.find(entry => sameFileRef(entry.file, activeFile)) : null;
-        if (activeEntry) patternLibrarySelect.value = activeEntry.label;
+        currentPatternLabel = activeEntry ? activeEntry.label : currentPatternLabel;
+        patternLibraryStrip.innerHTML = patternLibrary.map(entry => `
+            <button class="pattern-library-tile${entry === activeEntry ? ' active' : ''}" type="button" data-pattern-label="${entry.label.replace(/"/g, '&quot;')}" title="${entry.label.replace(/"/g, '&quot;')}">
+                ${entry.thumb ? `<img src="${entry.thumb}" alt="${entry.label.replace(/"/g, '&quot;')}">` : `<img alt="${entry.label.replace(/"/g, '&quot;')}">`}
+                <div class="pattern-library-tile-name">${entry.label}</div>
+            </button>
+        `).join('');
+        patternLibraryStrip.querySelectorAll('[data-pattern-label]').forEach(tile => {
+            tile.onclick = () => switchToLibraryPattern(tile.dataset.patternLabel);
+        });
         if (patternLibraryRow) patternLibraryRow.classList.toggle('hidden', patternLibrary.length < 2);
     }
 
     function addToPatternLibrary(file) {
         if (!file) return;
         if (patternLibrary.some(entry => sameFileRef(entry.file, file))) {
-            renderPatternLibrarySelect(file);
+            renderPatternLibraryStrip(file);
             return;
         }
         let label = file.name;
@@ -5849,8 +5915,10 @@ window.addEventListener('load', () => {
             label = `${file.name} (${n})`;
             n++;
         }
-        patternLibrary.push({ label, file });
-        renderPatternLibrarySelect(file);
+        const thumbSource = uploadedOriginalPreviewImg || originalImg;
+        const thumb = makeThumbDataUrl(thumbSource);
+        patternLibrary.push({ label, file, thumb });
+        renderPatternLibraryStrip(file);
     }
 
     const loadImageWithLibraryTracking = loadImage;
@@ -5860,21 +5928,22 @@ window.addEventListener('load', () => {
         return result;
     };
 
-    if (patternLibrarySelect) {
-        patternLibrarySelect.onchange = async () => {
-            const entry = patternLibrary.find(e => e.label === patternLibrarySelect.value);
-            if (!entry) return;
-            patternLibrarySelect.disabled = true;
-            try {
-                showToast(`✧ Loading ${entry.label}… ✧`, 1200);
-                await loadImage(entry.file);
-            } catch (err) {
-                console.error('Could not switch pattern:', err);
-                alert('Could not load that pattern: ' + (err && err.message ? err.message : err));
-            } finally {
-                patternLibrarySelect.disabled = false;
-            }
-        };
+    async function switchToLibraryPattern(label) {
+        if (patternLibraryBusy || label === currentPatternLabel) return;
+        const entry = patternLibrary.find(e => e.label === label);
+        if (!entry) return;
+        patternLibraryBusy = true;
+        if (patternLibraryStrip) patternLibraryStrip.style.opacity = '0.5';
+        try {
+            showToast(`✧ Loading ${entry.label}… ✧`, 1200);
+            await loadImage(entry.file);
+        } catch (err) {
+            console.error('Could not switch pattern:', err);
+            alert('Could not load that pattern: ' + (err && err.message ? err.message : err));
+        } finally {
+            patternLibraryBusy = false;
+            if (patternLibraryStrip) patternLibraryStrip.style.opacity = '';
+        }
     }
 </script>
 
