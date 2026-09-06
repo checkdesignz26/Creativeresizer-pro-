@@ -1586,13 +1586,13 @@ window.addEventListener("load", () => {
 <div class="privacy-note">🔒 Your pattern stays private. Images are processed in your browser and never stored.</div>
 
 <div class="pattern-tray-box" id="patternTrayBox">
-  <label>🖼 your patterns</label>
-  <div class="pattern-tray-help">Click a pattern below to preview it and choose its products — your choice is remembered. Check the box on a pattern to include it, then download all the ones you've checked at once.</div>
+  <label>🖼 your files</label>
+  <div class="pattern-tray-help">Click a file below to preview it and choose its products — your choice is remembered. Check the box on a file to include it, then download all the ones you've checked at once.</div>
   <div class="pattern-library-strip hidden" id="patternLibraryStrip"></div>
   <input accept="image/png,image/jpeg,image/jpg,image/webp" id="batchFileInput" multiple="" style="display:none;" type="file"/>
-  <button class="batch-add-btn" id="batchAddBtn" type="button">+ add more patterns</button>
-  <button class="batch-add-btn hidden" id="applySelectionBtn" type="button">📋 apply current products to checked patterns</button>
-  <button class="batch-process-btn hidden" id="downloadAllPatternsBtn" type="button">⬇ download selected patterns</button>
+  <button class="batch-add-btn" id="batchAddBtn" type="button">+ add more files</button>
+  <button class="batch-add-btn hidden" id="applySelectionBtn" type="button">📋 apply current products to checked files</button>
+  <button class="batch-process-btn hidden" id="downloadAllPatternsBtn" type="button">⬇ download selected files</button>
   <div class="batch-progress hidden" id="batchProgress"></div>
 </div>
 
@@ -5763,7 +5763,7 @@ window.addEventListener('load', () => {
                     showToast(`✧ Loading ${entry.label}… ✧`, 1200);
                     goToPattern(entry.file).catch(err => {
                         console.error('Could not switch pattern:', err);
-                        alert('Could not load that pattern: ' + (err && err.message ? err.message : err));
+                        alert('Could not load that file: ' + (err && err.message ? err.message : err));
                     });
                 }
             };
@@ -5793,8 +5793,8 @@ window.addEventListener('load', () => {
         if (!downloadAllPatternsBtn) return;
         const count = imageTray.filter(e => e.includeInDownload).length;
         downloadAllPatternsBtn.textContent = count
-            ? `⬇ download ${count} selected pattern${count > 1 ? 's' : ''}`
-            : '⬇ download selected patterns';
+            ? `⬇ download ${count} selected file${count > 1 ? 's' : ''}`
+            : '⬇ download selected files';
     }
 
     const loadImageOriginal = loadImage;
@@ -5842,7 +5842,7 @@ window.addEventListener('load', () => {
                     await goToPattern(first);
                 } catch (err) {
                     console.error('Could not load pattern:', err);
-                    alert('Could not load that pattern: ' + (err && err.message ? err.message : err));
+                    alert('Could not load that file: ' + (err && err.message ? err.message : err));
                 }
             }
             picked.forEach(file => addToTray(file));
@@ -5854,13 +5854,13 @@ window.addEventListener('load', () => {
         applySelectionBtn.onclick = () => {
             const names = snapshotSelectionNames();
             if (names.length === 0) {
-                alert('Choose products for the pattern you\'re currently viewing first, then apply them to the others.');
+                alert('Choose products for the file you\'re currently viewing first, then apply them to the others.');
                 return;
             }
             const activeEntry = imageTray.find(e => e.label === currentPatternLabel);
             const others = imageTray.filter(e => e.includeInDownload && e !== activeEntry);
             if (others.length === 0) {
-                alert('Check the box on at least one other pattern to apply these products to.');
+                alert('Check the box on at least one other file to apply these products to.');
                 return;
             }
             others.forEach(e => { e.selectedNames = names.slice(); });
@@ -5869,7 +5869,7 @@ window.addEventListener('load', () => {
                 activeEntry.includeInDownload = true;
             }
             renderTrayStrip();
-            showToast(`✧ Applied to ${others.length} pattern${others.length > 1 ? 's' : ''} ✧`, 2000);
+            showToast(`✧ Applied to ${others.length} file${others.length > 1 ? 's' : ''} ✧`, 2000);
         };
     }
 
@@ -5886,12 +5886,12 @@ window.addEventListener('load', () => {
 
             const chosen = imageTray.filter(e => e.includeInDownload);
             if (chosen.length === 0) {
-                alert('Check the box on at least one pattern above to include it in the download.');
+                alert('Check the box on at least one file above to include it in the download.');
                 return;
             }
             const withSelections = chosen.filter(e => e.selectedNames.length > 0);
             if (withSelections.length === 0) {
-                alert('The pattern(s) you checked don\'t have any products chosen yet — click each one above and check the sizes you want first.');
+                alert('The file(s) you checked don\'t have any products chosen yet — click each one above and check the sizes you want first.');
                 return;
             }
 
@@ -5955,13 +5955,13 @@ window.addEventListener('load', () => {
                 if (succeeded > 0) {
                     if (batchProgress) batchProgress.textContent = 'Zipping files…';
                     const zipBlob = await zip.generateAsync({ type: 'blob', mimeType: 'application/zip' });
-                    await triggerDownload(zipBlob, `patterns_${succeeded}_image${succeeded > 1 ? 's' : ''}.zip`);
+                    await triggerDownload(zipBlob, `files_${succeeded}.zip`);
                     const bits = [`${succeeded} exported`];
                     if (failedNames.length) bits.push(`${failedNames.length} failed`);
                     if (skipped) bits.push(`${skipped} skipped (no products chosen)`);
                     showToast(`✅ ${bits.join(' · ')}`, 3500);
                 } else {
-                    alert('Download failed — none of the patterns could be processed.');
+                    alert('Download failed — none of the files could be processed.');
                 }
             } catch (err) {
                 console.error('Download all failed:', err);
