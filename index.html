@@ -305,6 +305,16 @@ window.addEventListener("load", () => {
             color: #e0d9ff;
             font-weight: 600;
         }
+        .pattern-library-tile-include {
+            position: absolute;
+            top: -2px;
+            left: 0;
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: #6be08a;
+        }
         .pattern-library-tile-remove {
             position: absolute;
             top: -4px;
@@ -1575,11 +1585,11 @@ window.addEventListener("load", () => {
 
 <div class="pattern-tray-box" id="patternTrayBox">
   <label>🖼 your patterns</label>
-  <div class="pattern-tray-help">Click a pattern below to preview it and choose its products — your choice is remembered. Add more, then download everything at once.</div>
+  <div class="pattern-tray-help">Click a pattern below to preview it and choose its products — your choice is remembered. Check the box on a pattern to include it, then download all the ones you've checked at once.</div>
   <div class="pattern-library-strip hidden" id="patternLibraryStrip"></div>
   <input accept="image/png,image/jpeg,image/jpg,image/webp" id="batchFileInput" multiple="" style="display:none;" type="file"/>
   <button class="batch-add-btn" id="batchAddBtn" type="button">+ add more patterns</button>
-  <button class="batch-process-btn hidden" id="downloadAllPatternsBtn" type="button">⬇ download all patterns</button>
+  <button class="batch-process-btn hidden" id="downloadAllPatternsBtn" type="button">⬇ download selected patterns</button>
   <div class="batch-progress hidden" id="batchProgress"></div>
 </div>
 
@@ -5704,7 +5714,7 @@ window.addEventListener('load', () => {
                 label = `${file.name} (${n})`;
                 n++;
             }
-            entry = { label, file, thumb: URL.createObjectURL(file), selectedNames: [] };
+            entry = { label, file, thumb: URL.createObjectURL(file), selectedNames: [], includeInDownload: false };
             imageTray.push(entry);
         }
         return entry;
@@ -5725,6 +5735,7 @@ window.addEventListener('load', () => {
         if (activeEntry) activeEntry.selectedNames = snapshotSelectionNames();
         patternLibraryStrip.innerHTML = imageTray.map(entry => `
             <div class="pattern-library-tile${entry.label === currentPatternLabel ? ' active' : ''}" data-pattern-label="${escapeAttr(entry.label)}" title="${escapeAttr(entry.label)}">
+                <input type="checkbox" class="pattern-library-tile-include" data-include-label="${escapeAttr(entry.label)}" title="include in download all" ${entry.includeInDownload ? 'checked' : ''}>
                 <img src="${entry.thumb}" alt="${escapeAttr(entry.label)}">
                 <div class="pattern-library-tile-name">${escapeHtml(entry.label)}</div>
                 ${entry.selectedNames.length ? `<div class="pattern-library-tile-badge">${entry.selectedNames.length}</div>` : ''}
@@ -5733,7 +5744,7 @@ window.addEventListener('load', () => {
         `).join('');
         patternLibraryStrip.querySelectorAll('[data-pattern-label]').forEach(tile => {
             tile.onclick = (e) => {
-                if (e.target.closest('[data-remove-label]')) return;
+                if (e.target.closest('[data-remove-label]') || e.target.closest('[data-include-label]')) return;
                 const entry = imageTray.find(en => en.label === tile.dataset.patternLabel);
                 if (entry) {
                     showToast(`✧ Loading ${entry.label}… ✧`, 1200);
@@ -5750,9 +5761,26 @@ window.addEventListener('load', () => {
                 removeFromTray(btn.dataset.removeLabel);
             };
         });
+        patternLibraryStrip.querySelectorAll('[data-include-label]').forEach(checkbox => {
+            checkbox.onclick = (e) => e.stopPropagation();
+            checkbox.onchange = (e) => {
+                const entry = imageTray.find(en => en.label === checkbox.dataset.includeLabel);
+                if (entry) entry.includeInDownload = checkbox.checked;
+                updateDownloadAllButtonLabel();
+            };
+        });
         const twoOrMore = imageTray.length >= 2;
         patternLibraryStrip.classList.toggle('hidden', !twoOrMore);
         if (downloadAllPatternsBtn) downloadAllPatternsBtn.classList.toggle('hidden', !twoOrMore);
+        updateDownloadAllButtonLabel();
+    }
+
+    function updateDownloadAllButtonLabel() {
+        if (!downloadAllPatternsBtn) return;
+        const count = imageTray.filter(e => e.includeInDownload).length;
+        downloadAllPatternsBtn.textContent = count
+            ? `⬇ download ${count} selected pattern${count > 1 ? 's' : ''}`
+            : '⬇ download selected patterns';
     }
 
     const loadImageOriginal = loadImage;
@@ -5819,16 +5847,21 @@ window.addEventListener('load', () => {
             const outgoingEntry = imageTray.find(e => e.label === currentPatternLabel);
             if (outgoingEntry) outgoingEntry.selectedNames = snapshotSelectionNames();
 
-            const withSelections = imageTray.filter(e => e.selectedNames.length > 0);
+            const chosen = imageTray.filter(e => e.includeInDownload);
+            if (chosen.length === 0) {
+                alert('Check the box on at least one pattern above to include it in the download.');
+                return;
+            }
+            const withSelections = chosen.filter(e => e.selectedNames.length > 0);
             if (withSelections.length === 0) {
-                alert('Choose products for at least one pattern first — click a pattern above, then check the sizes you want.');
+                alert('The pattern(s) you checked don\'t have any products chosen yet — click each one above and check the sizes you want first.');
                 return;
             }
 
             const startingLabel = currentPatternLabel;
             const format = outputFormatSelect.value;
             const ext = format === 'jpeg' ? 'jpg' : format;
-            const skipped = imageTray.length - withSelections.length;
+            const skipped = chosen.length - withSelections.length;
 
             trayBusy = true;
             downloadAllPatternsBtn.disabled = true;
