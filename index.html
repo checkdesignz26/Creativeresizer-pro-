@@ -674,16 +674,25 @@ window.addEventListener("load", () => {
         .batch-file-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
             gap: 8px;
             background: rgba(10,10,26,.4);
             border: 1px solid rgba(138, 122, 255, 0.25);
             border-radius: 14px;
-            padding: 7px 10px;
+            padding: 6px 10px 6px 6px;
             font-size: 12px;
             font-family: 'Quicksand', sans-serif;
         }
+        .batch-file-thumb {
+            flex: 0 0 auto;
+            width: 34px;
+            height: 34px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #0a0a1a;
+        }
         .batch-file-row .batch-file-name {
+            flex: 1;
+            min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -5691,6 +5700,7 @@ window.addEventListener('load', () => {
         if (!batchFileList) return;
         batchFileList.innerHTML = batchFiles.map((entry, i) => `
             <div class="batch-file-row" data-batch-idx="${i}">
+                <img class="batch-file-thumb" src="${entry.previewUrl}" alt="">
                 <span class="batch-file-name">${String(entry.file.name).replace(/</g, '&lt;')}</span>
                 <button class="batch-file-remove" type="button" data-batch-remove="${i}">✖</button>
             </div>
@@ -5698,6 +5708,7 @@ window.addEventListener('load', () => {
         batchFileList.querySelectorAll('[data-batch-remove]').forEach(btn => {
             btn.onclick = () => {
                 const idx = parseInt(btn.dataset.batchRemove, 10);
+                URL.revokeObjectURL(batchFiles[idx].previewUrl);
                 batchFiles.splice(idx, 1);
                 renderBatchFileList();
                 updateBatchProcessButton();
@@ -5719,7 +5730,7 @@ window.addEventListener('load', () => {
             const picked = Array.from(e.target.files || []);
             picked.forEach(file => {
                 const alreadyAdded = batchFiles.some(entry => entry.file.name === file.name && entry.file.size === file.size);
-                if (!alreadyAdded) batchFiles.push({ file });
+                if (!alreadyAdded) batchFiles.push({ file, previewUrl: URL.createObjectURL(file) });
             });
             batchFileInput.value = '';
             renderBatchFileList();
@@ -5840,6 +5851,7 @@ window.addEventListener('load', () => {
                     }
                 }
                 if (batchProgress) batchProgress.classList.add('hidden');
+                batchFiles.forEach(entry => URL.revokeObjectURL(entry.previewUrl));
                 batchFiles = [];
                 renderBatchFileList();
                 updateBatchProcessButton();
