@@ -5713,6 +5713,20 @@ window.addEventListener('load', () => {
 
             try {
                 const zip = new JSZip();
+                const usedZipPaths = new Set();
+                function addUniqueZipPath(path, blob) {
+                    let finalPath = path;
+                    let n = 2;
+                    const dot = path.lastIndexOf('.');
+                    const base = dot === -1 ? path : path.slice(0, dot);
+                    const extPart = dot === -1 ? '' : path.slice(dot);
+                    while (usedZipPaths.has(finalPath)) {
+                        finalPath = `${base}_${n}${extPart}`;
+                        n++;
+                    }
+                    usedZipPaths.add(finalPath);
+                    zip.file(finalPath, blob);
+                }
 
                 for (let i = 0; i < batchFiles.length; i++) {
                     const file = batchFiles[i].file;
@@ -5722,10 +5736,14 @@ window.addEventListener('load', () => {
                         const currentItems = getSelectedBatchItems();
                         const baseName = file.name.replace(/\.[^.]+$/, '');
                         const safeBase = baseName.replace(/[^a-z0-9_-]/gi, '_').toLowerCase() || `image_${i + 1}`;
+                        const singleProduct = currentItems.length === 1;
                         for (const item of currentItems) {
                             const blob = await exportProductBlob(products[item.index], productCanvases[item.index], getRenderScale(products[item.index], item.index));
                             const cleanProduct = item.name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-                            zip.file(`${safeBase}/${safeBase}_${cleanProduct}.${ext}`, blob);
+                            const path = singleProduct
+                                ? `${safeBase}.${ext}`
+                                : `${safeBase}/${safeBase}_${cleanProduct}.${ext}`;
+                            addUniqueZipPath(path, blob);
                         }
                         succeeded++;
                         setBatchRowStatus(i, 'done');
