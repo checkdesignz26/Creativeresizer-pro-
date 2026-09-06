@@ -257,6 +257,28 @@ window.addEventListener("load", () => {
         .upload-remove-btn {
             margin: 0;
         }
+        .pattern-library-row {
+            margin-top: 12px;
+            text-align: left;
+        }
+        .pattern-library-row.hidden { display: none; }
+        .pattern-library-row label {
+            display: block;
+            font-size: 11px;
+            color: #aaa;
+            margin-bottom: 5px;
+            font-family: 'Quicksand', sans-serif;
+        }
+        .pattern-library-row select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 40px;
+            border: 1px solid #4a4a8a;
+            background: #16213e;
+            color: white;
+            font-size: 13px;
+            font-family: 'Quicksand', sans-serif;
+        }
 
         .upload-box {
             border: 2px dashed #8a7aff;
@@ -1526,6 +1548,10 @@ window.addEventListener("load", () => {
 <div class="upload-loaded-actions" id="uploadLoadedActions">
 <button class="replace-btn" id="replaceBtn" type="button">↻ replace pattern</button>
 <button class="remove-btn upload-remove-btn" id="removeBtn" type="button">✖ remove pattern</button>
+</div>
+<div class="pattern-library-row hidden" id="patternLibraryRow">
+<label for="patternLibrarySelect">🖼 viewing pattern</label>
+<select id="patternLibrarySelect"></select>
 </div>
 </div>
 </div>
@@ -5781,6 +5807,72 @@ window.addEventListener('load', () => {
                 batchFiles = [];
                 renderBatchFileList();
                 updateBatchProcessButton();
+            }
+        };
+    }
+</script>
+
+<script>
+    // Pattern library: remember every pattern loaded this session (initial
+    // upload, replace, or via batch resize) so switching to a new one never
+    // means losing access to the previous ones - pick any of them back from
+    // the dropdown instead of having to re-upload.
+
+    let patternLibrary = []; // { label, file }
+
+    const patternLibraryRow = document.getElementById('patternLibraryRow');
+    const patternLibrarySelect = document.getElementById('patternLibrarySelect');
+
+    function sameFileRef(a, b) {
+        return !!a && !!b && a.name === b.name && a.size === b.size;
+    }
+
+    function renderPatternLibrarySelect(activeFile) {
+        if (!patternLibrarySelect) return;
+        patternLibrarySelect.innerHTML = patternLibrary.map(entry =>
+            `<option value="${entry.label.replace(/"/g, '&quot;')}">${entry.label}</option>`
+        ).join('');
+        const activeEntry = activeFile ? patternLibrary.find(entry => sameFileRef(entry.file, activeFile)) : null;
+        if (activeEntry) patternLibrarySelect.value = activeEntry.label;
+        if (patternLibraryRow) patternLibraryRow.classList.toggle('hidden', patternLibrary.length < 2);
+    }
+
+    function addToPatternLibrary(file) {
+        if (!file) return;
+        if (patternLibrary.some(entry => sameFileRef(entry.file, file))) {
+            renderPatternLibrarySelect(file);
+            return;
+        }
+        let label = file.name;
+        let n = 2;
+        while (patternLibrary.some(entry => entry.label === label)) {
+            label = `${file.name} (${n})`;
+            n++;
+        }
+        patternLibrary.push({ label, file });
+        renderPatternLibrarySelect(file);
+    }
+
+    const loadImageWithLibraryTracking = loadImage;
+    loadImage = async function(file) {
+        const result = await loadImageWithLibraryTracking(file);
+        addToPatternLibrary(file);
+        return result;
+    };
+
+    if (patternLibrarySelect) {
+        patternLibrarySelect.onchange = async () => {
+            const entry = patternLibrary.find(e => e.label === patternLibrarySelect.value);
+            if (!entry) return;
+            patternLibrarySelect.disabled = true;
+            try {
+                showToast(`✧ Loading ${entry.label}… ✧`, 1200);
+                await loadImage(entry.file);
+            } catch (err) {
+                console.error('Could not switch pattern:', err);
+                alert('Could not load that pattern: ' + (err && err.message ? err.message : err));
+            } finally {
+                patternLibrarySelect.disabled = false;
             }
         };
     }
