@@ -692,11 +692,13 @@ window.addEventListener("load", () => {
         }
         .batch-add-btn {
             width: 100%;
+            margin-top: 8px;
             background: rgba(255,255,255,.06);
             border: 1px dashed #8a7aff;
             color: #e0d9ff;
             font-weight: 600;
         }
+        .batch-add-btn.hidden { display: none; }
         .batch-process-btn {
             width: 100%;
             margin-top: 8px;
@@ -1589,6 +1591,7 @@ window.addEventListener("load", () => {
   <div class="pattern-library-strip hidden" id="patternLibraryStrip"></div>
   <input accept="image/png,image/jpeg,image/jpg,image/webp" id="batchFileInput" multiple="" style="display:none;" type="file"/>
   <button class="batch-add-btn" id="batchAddBtn" type="button">+ add more patterns</button>
+  <button class="batch-add-btn hidden" id="applySelectionBtn" type="button">📋 apply current products to checked patterns</button>
   <button class="batch-process-btn hidden" id="downloadAllPatternsBtn" type="button">⬇ download selected patterns</button>
   <div class="batch-progress hidden" id="batchProgress"></div>
 </div>
@@ -5678,6 +5681,7 @@ window.addEventListener('load', () => {
     const patternLibraryStrip = document.getElementById('patternLibraryStrip');
     const batchFileInput = document.getElementById('batchFileInput');
     const batchAddBtn = document.getElementById('batchAddBtn');
+    const applySelectionBtn = document.getElementById('applySelectionBtn');
     const downloadAllPatternsBtn = document.getElementById('downloadAllPatternsBtn');
     const batchProgress = document.getElementById('batchProgress');
 
@@ -5772,6 +5776,7 @@ window.addEventListener('load', () => {
         const twoOrMore = imageTray.length >= 2;
         patternLibraryStrip.classList.toggle('hidden', !twoOrMore);
         if (downloadAllPatternsBtn) downloadAllPatternsBtn.classList.toggle('hidden', !twoOrMore);
+        if (applySelectionBtn) applySelectionBtn.classList.toggle('hidden', !twoOrMore);
         updateDownloadAllButtonLabel();
     }
 
@@ -5833,6 +5838,29 @@ window.addEventListener('load', () => {
             }
             picked.forEach(file => addToTray(file));
             renderTrayStrip();
+        };
+    }
+
+    if (applySelectionBtn) {
+        applySelectionBtn.onclick = () => {
+            const names = snapshotSelectionNames();
+            if (names.length === 0) {
+                alert('Choose products for the pattern you\'re currently viewing first, then apply them to the others.');
+                return;
+            }
+            const activeEntry = imageTray.find(e => e.label === currentPatternLabel);
+            const others = imageTray.filter(e => e.includeInDownload && e !== activeEntry);
+            if (others.length === 0) {
+                alert('Check the box on at least one other pattern to apply these products to.');
+                return;
+            }
+            others.forEach(e => { e.selectedNames = names.slice(); });
+            if (activeEntry) {
+                activeEntry.selectedNames = names.slice();
+                activeEntry.includeInDownload = true;
+            }
+            renderTrayStrip();
+            showToast(`✧ Applied to ${others.length} pattern${others.length > 1 ? 's' : ''} ✧`, 2000);
         };
     }
 
