@@ -3713,8 +3713,17 @@ function regenerateAllCanvases() {
         if (isIOS) {
             const file = new File([blob], filename, { type: mime });
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({ files: [file] });
-                return;
+                try {
+                    await navigator.share({ files: [file] });
+                    return;
+                } catch (err) {
+                    if (err && err.name === 'AbortError') return; // user cancelled the share sheet on purpose
+                    // Long-running exports (batches, multi-product zips) can outlast the
+                    // brief window iOS gives a page to call share() after a tap, which
+                    // fails with a "not allowed" error even though nothing is wrong.
+                    // Fall back to a direct download link instead of losing the export.
+                    console.warn('navigator.share failed, falling back to direct download:', err);
+                }
             }
 
             const url = URL.createObjectURL(blob);
