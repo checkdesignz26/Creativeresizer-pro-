@@ -103,9 +103,9 @@ window.addEventListener("load", () => {
 <style>
 :root {
     /* Stage colors: the backdrop directly behind pattern/product/mock-up
-       canvases and thumbnails. These stay identical in both themes on
-       purpose, so switching the UI theme never changes how a pattern or
-       mock-up looks. */
+       canvases and thumbnails. This is just the letterboxing behind the
+       artwork, not the artwork itself, so it's allowed to follow the
+       theme - only the actual pattern/mock-up pixels stay untouched. */
     --stage-bg: #0a0a1a;
     --stage-rgb: 10, 10, 26;
 
@@ -140,17 +140,19 @@ window.addEventListener("load", () => {
 }
 
 [data-theme="light"] {
-    --bg-page-start: #f7ecd9;
-    --bg-page-end: #f0dfc0;
+    --stage-bg: #d9d0bd;
+    --stage-rgb: 217, 208, 189;
+    --bg-page-start: #ede0c4;
+    --bg-page-end: #ddc496;
     --panel-rgb: 255, 250, 240;
     --card-rgb: 255, 255, 255;
     --input-bg: #fffaf0;
-    --deep-rgb: 234, 220, 195;
+    --deep-rgb: 224, 209, 181;
     --surface-muted: #f0e4cc;
     --border-color: #dcc6a0;
-    --accent-a: #e2836a;
-    --accent-b: #c85f45;
-    --accent-rgb: 226, 131, 106;
+    --accent-a: #d97b83;
+    --accent-b: #b85a62;
+    --accent-rgb: 217, 123, 131;
     --accent-light: #7a4530;
     --accent-soft: #9c5f42;
     --accent-soft2: #a8714f;
@@ -163,8 +165,8 @@ window.addEventListener("load", () => {
     --danger-hover: #c8433d;
     --danger-rgb: 224, 86, 79;
     --success: #4c9d6e;
-    --blue-accent: #c85f45;
-    --blue-accent-rgb: 200, 95, 69;
+    --blue-accent: #b85a62;
+    --blue-accent-rgb: 184, 90, 98;
     --panel-dark: #efe0c4;
     --dragover-rgb: 232, 196, 160;
 }
@@ -1891,6 +1893,9 @@ window.addEventListener("load", () => {
 </div>
 <div class="toast hidden" id="toast"></div>
 <script>
+    function getStageBg() {
+        return getComputedStyle(document.documentElement).getPropertyValue('--stage-bg').trim() || '#0a0a1a';
+    }
     const DPI = 300;
     const PREVIEW_RENDER_SIZE = 360;
     const THUMB_RENDER_SIZE = 440;
@@ -2516,7 +2521,7 @@ ctx.lineWidth = 1;
         ctx.clearRect(0, 0, thumbW, thumbH);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
-        ctx.fillStyle = '#0a0a1a';
+        ctx.fillStyle = getStageBg();
         ctx.fillRect(0, 0, thumbW, thumbH);
 
         const scale = Math.min((thumbW - (padding * 2)) / product.w, (thumbH - (padding * 2)) / product.h);
@@ -2537,7 +2542,7 @@ ctx.lineWidth = 1;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
-        ctx.fillStyle = '#0a0a1a';
+        ctx.fillStyle = getStageBg();
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         const margin = zoomMode ? 0 : 10;
@@ -2608,7 +2613,7 @@ ctx.lineWidth = 1;
         ctx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
-        ctx.fillStyle = '#0a0a1a';
+        ctx.fillStyle = getStageBg();
         ctx.fillRect(0, 0, zoomCanvas.width, zoomCanvas.height);
 
         const previewSource = (uploadedOriginalPreviewImg && uploadedOriginalPreviewWidth && uploadedOriginalPreviewHeight && tileSourceMode !== 'square')
@@ -2690,7 +2695,7 @@ ctx.lineWidth = 1;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
-            ctx.fillStyle = '#0a0a1a';
+            ctx.fillStyle = getStageBg();
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             if (hasRectSource) {
@@ -3242,7 +3247,7 @@ function regenerateAllCanvases() {
             tCtx.clearRect(0, 0, thumb.width, thumb.height);
             tCtx.imageSmoothingEnabled = true;
             tCtx.imageSmoothingQuality = 'high';
-            tCtx.fillStyle = '#0a0a1a';
+            tCtx.fillStyle = getStageBg();
             tCtx.fillRect(0, 0, thumb.width, thumb.height);
 
             try {
