@@ -5,6 +5,17 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, user-scalable=yes" name="viewport"/>
 <title>Creative Resizer Pro | Pattern & Artwork Resizer</title>
+<script>
+(function() {
+    // Apply the saved theme before first paint to avoid a flash of the wrong theme.
+    try {
+        var saved = localStorage.getItem('crpTheme');
+        if (saved === 'light' || saved === 'dark') {
+            document.documentElement.setAttribute('data-theme', saved);
+        }
+    } catch (e) {}
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js">
 function updateSelectedSummary() {
   const count = document.getElementById("selectedCount");
@@ -90,6 +101,75 @@ window.addEventListener("load", () => {
 
 </script>
 <style>
+:root {
+    /* Stage colors: the backdrop directly behind pattern/product/mock-up
+       canvases and thumbnails. These stay identical in both themes on
+       purpose, so switching the UI theme never changes how a pattern or
+       mock-up looks. */
+    --stage-bg: #0a0a1a;
+    --stage-rgb: 10, 10, 26;
+
+    /* Dark theme (default) */
+    --bg-page-start: #0a0a1a;
+    --bg-page-end: #12122a;
+    --panel-rgb: 22, 33, 62;
+    --card-rgb: 30, 42, 74;
+    --input-bg: #16213e;
+    --deep-rgb: 10, 10, 26;
+    --surface-muted: #0a0a1a;
+    --border-color: #4a4a8a;
+    --accent-a: #8a7aff;
+    --accent-b: #6b5fd3;
+    --accent-rgb: 138, 122, 255;
+    --accent-light: #e0d9ff;
+    --accent-soft: #b8aaff;
+    --accent-soft2: #b8b1d9;
+    --accent-pale: #e7e0ff;
+    --fg-rgb: 255, 255, 255;
+    --text-primary: #ffffff;
+    --text-muted: #aaa;
+    --text-dim: #ddd;
+    --danger: #ff6b6b;
+    --danger-hover: #ff5252;
+    --danger-rgb: 255, 107, 107;
+    --success: #6be08a;
+    --blue-accent: #5f6df5;
+    --blue-accent-rgb: 95, 109, 245;
+    --panel-dark: #1e2a4a;
+    --dragover-rgb: 52, 66, 122;
+}
+
+[data-theme="light"] {
+    --bg-page-start: #f7ecd9;
+    --bg-page-end: #f0dfc0;
+    --panel-rgb: 255, 250, 240;
+    --card-rgb: 255, 255, 255;
+    --input-bg: #fffaf0;
+    --deep-rgb: 234, 220, 195;
+    --surface-muted: #f0e4cc;
+    --border-color: #dcc6a0;
+    --accent-a: #e2836a;
+    --accent-b: #c85f45;
+    --accent-rgb: 226, 131, 106;
+    --accent-light: #7a4530;
+    --accent-soft: #9c5f42;
+    --accent-soft2: #a8714f;
+    --accent-pale: #8a5238;
+    --fg-rgb: 61, 43, 31;
+    --text-primary: #3d2b1f;
+    --text-muted: #8a7360;
+    --text-dim: #6b5744;
+    --danger: #e0564f;
+    --danger-hover: #c8433d;
+    --danger-rgb: 224, 86, 79;
+    --success: #4c9d6e;
+    --blue-accent: #c85f45;
+    --blue-accent-rgb: 200, 95, 69;
+    --panel-dark: #efe0c4;
+    --dragover-rgb: 232, 196, 160;
+}
+
+<style>
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
 .top-tabs {
 
@@ -109,23 +189,23 @@ window.addEventListener("load", () => {
 
     border-radius: 999px;
 
-    background: rgba(255,255,255,0.08);
+    background: rgba(var(--fg-rgb),0.08);
 
     font-family: 'Quicksand', sans-serif;
 
     font-size: 14px;
 
-    color: #ddd;
+    color: var(--text-dim);
 
 }
 
 .tab.active {
 
-    background: linear-gradient(135deg, #8a7aff, #6b5fd3);
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
 
     color: white;
 
-    box-shadow: 0 4px 15px rgba(138,122,255,0.4);
+    box-shadow: 0 4px 15px rgba(var(--accent-rgb),0.4);
 
 }
 
@@ -151,9 +231,9 @@ window.addEventListener("load", () => {
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: linear-gradient(135deg, #0a0a1a 0%, #12122a 100%);
+            background: linear-gradient(135deg, var(--bg-page-start) 0%, var(--bg-page-end) 100%);
             padding: 20px;
-            color: white;
+            color: var(--text-primary);
             min-height: 100vh;
         }
         .container { max-width: 1600px; margin: 0 auto; }
@@ -162,7 +242,7 @@ window.addEventListener("load", () => {
         h1 {
             font-family: 'Caveat', cursive;
             font-size: 64px;
-            background: linear-gradient(135deg, #e0d9ff 0%, #b8aaff 50%, #8a7aff 100%);
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent-soft) 50%, var(--accent-a) 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -170,7 +250,7 @@ window.addEventListener("load", () => {
         .subtitle {
             font-family: 'Caveat', cursive;
             font-size: 20px;
-            color: #b8aaff;
+            color: var(--accent-soft);
         }
 
         .main-layout {
@@ -180,7 +260,7 @@ window.addEventListener("load", () => {
             align-items: stretch;
         }
         .sidebar {
-            background: rgba(22, 33, 62, 0.85);
+            background: rgba(var(--panel-rgb), 0.85);
             backdrop-filter: blur(10px);
             border-radius: 32px;
             padding: 20px;
@@ -189,10 +269,10 @@ window.addEventListener("load", () => {
             height: 85vh;
             overflow-y: auto;
             overflow-x: hidden;
-            border: 1px solid rgba(138, 122, 255, 0.3);
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
         }
         .content {
-            background: rgba(22, 33, 62, 0.85);
+            background: rgba(var(--panel-rgb), 0.85);
             backdrop-filter: blur(10px);
             border-radius: 32px;
             padding: 20px;
@@ -201,7 +281,7 @@ window.addEventListener("load", () => {
             min-width: 0;
             height: 85vh;
             overflow: hidden;
-            border: 1px solid rgba(138, 122, 255, 0.3);
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
             position: relative;
             display: flex;
             flex-direction: column;
@@ -250,8 +330,8 @@ window.addEventListener("load", () => {
             margin-top: 12px;
         }
         .replace-btn {
-            background: linear-gradient(135deg, #8a7aff, #6b5fd3);
-            color: #fff;
+            background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+            color: white;
             font-weight: 600;
         }
         .upload-remove-btn {
@@ -281,28 +361,28 @@ window.addEventListener("load", () => {
             height: 56px;
             object-fit: cover;
             border-radius: 12px;
-            border: 2px solid #4a4a8a;
-            background: #0a0a1a;
+            border: 2px solid var(--border-color);
+            background: var(--stage-bg);
             display: block;
             margin: 0 auto 4px;
             transition: all 0.2s;
         }
         .pattern-library-tile:hover img {
-            border-color: #8a7aff;
+            border-color: var(--accent-a);
         }
         .pattern-library-tile.active img {
-            border-color: #8a7aff;
-            box-shadow: 0 0 0 2px rgba(138, 122, 255, 0.45);
+            border-color: var(--accent-a);
+            box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.45);
         }
         .pattern-library-tile-name {
             font-size: 9px;
-            color: rgba(255,255,255,0.7);
+            color: rgba(var(--fg-rgb),0.7);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
         .pattern-library-tile.active .pattern-library-tile-name {
-            color: #e0d9ff;
+            color: var(--accent-light);
             font-weight: 600;
         }
         .pattern-library-tile-include {
@@ -313,7 +393,7 @@ window.addEventListener("load", () => {
             height: 16px;
             margin: 0;
             cursor: pointer;
-            accent-color: #6be08a;
+            accent-color: var(--success);
         }
         .pattern-library-tile-remove {
             position: absolute;
@@ -322,8 +402,8 @@ window.addEventListener("load", () => {
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: #ff6b6b !important;
-            color: #fff !important;
+            background: var(--danger) !important;
+            color: white !important;
             font-size: 10px;
             line-height: 1;
             display: flex;
@@ -341,8 +421,8 @@ window.addEventListener("load", () => {
             height: 15px;
             padding: 0 3px;
             border-radius: 999px;
-            background: #6be08a;
-            color: #0a0a1a;
+            background: var(--success);
+            color: var(--stage-bg);
             font-size: 9px;
             font-weight: 700;
             line-height: 15px;
@@ -350,27 +430,27 @@ window.addEventListener("load", () => {
         }
 
         .upload-box {
-            border: 2px dashed #8a7aff;
+            border: 2px dashed var(--accent-a);
             border-radius: 24px;
             padding: 30px;
             text-align: center;
             cursor: pointer;
-            background: rgba(30, 42, 74, 0.5);
+            background: rgba(var(--card-rgb), 0.5);
             margin-bottom: 0;
             transition: all 0.3s;
         }
-        .upload-box:hover { background: rgba(37, 53, 95, 0.7); transform: scale(1.01); }
+        .upload-box:hover { background: rgba(var(--dragover-rgb), 0.7); transform: scale(1.01); }
         .upload-box.drag-over {
-            background: rgba(52, 66, 122, 0.92);
-            border-color: #e0d9ff;
-            box-shadow: 0 0 0 3px rgba(138, 122, 255, 0.22);
+            background: rgba(var(--dragover-rgb), 0.92);
+            border-color: var(--accent-light);
+            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.22);
         }
 
         .upload-icon { font-size: 48px; margin-bottom: 10px; animation: float 3s infinite; }
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
         .preview-section {
-            background: rgba(30, 42, 74, 0.5);
+            background: rgba(var(--card-rgb), 0.5);
             border-radius: 24px;
             padding: 15px;
             margin-bottom: 20px;
@@ -382,15 +462,15 @@ window.addEventListener("load", () => {
             width: 120px;
             height: 120px;
             border-radius: 20px;
-            border: 2px solid #8a7aff;
-            background: #0a0a1a;
+            border: 2px solid var(--accent-a);
+            background: var(--stage-bg);
             transition: all 0.3s;
             display: block;
         }
-        .preview-item canvas:hover { box-shadow: 0 0 20px rgba(138, 122, 255, 0.4); }
+        .preview-item canvas:hover { box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.4); }
 
         .input-group {
-            background: rgba(30, 42, 74, 0.5);
+            background: rgba(var(--card-rgb), 0.5);
             border-radius: 24px;
             padding: 15px;
             margin-bottom: 15px;
@@ -398,7 +478,7 @@ window.addEventListener("load", () => {
         .input-group label {
             display: block;
             font-size: 12px;
-            color: #aaa;
+            color: var(--text-muted);
             margin-bottom: 6px;
             font-family: 'Quicksand', sans-serif;
         }
@@ -406,9 +486,9 @@ window.addEventListener("load", () => {
             width: 100%;
             padding: 12px;
             border-radius: 40px;
-            border: 1px solid #4a4a8a;
-            background: #16213e;
-            color: white;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
             font-size: 14px;
             font-family: 'Quicksand', sans-serif;
         }
@@ -417,14 +497,14 @@ window.addEventListener("load", () => {
             display: flex;
             justify-content: space-between;
             padding: 10px 0;
-            border-bottom: 1px solid rgba(138, 122, 255, 0.2);
+            border-bottom: 1px solid rgba(var(--accent-rgb), 0.2);
             font-family: 'Quicksand', sans-serif;
             font-size: 13px;
         }
         .info-row:last-child { border-bottom: none; }
 
         button {
-            background: linear-gradient(135deg, #4a4a8a, #6b5fd3);
+            background: linear-gradient(135deg, var(--border-color), var(--accent-b));
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             color: white;
@@ -438,15 +518,15 @@ window.addEventListener("load", () => {
         }
         button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(107, 95, 211, 0.4); }
         .download-btn {
-            background: linear-gradient(135deg, #8a7aff, #6b5fd3);
+            background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
             width: 100%;
             margin-top: 10px;
             font-weight: 600;
         }
 
         .remove-btn {
-            background: #ff6b6b !important;
-            color: #ffffff !important;
+            background: var(--danger) !important;
+            color: white !important;
             font-weight: 700;
             border-radius: 999px;
             padding: 10px 18px;
@@ -456,11 +536,11 @@ window.addEventListener("load", () => {
             align-items: center;
             justify-content: center;
             gap: 6px;
-            box-shadow: 0 8px 22px rgba(255, 107, 107, 0.25);
+            box-shadow: 0 8px 22px rgba(var(--danger-rgb), 0.25);
         }
         .remove-btn:hover:not(:disabled) {
-            background: #ff5252 !important;
-            box-shadow: 0 10px 24px rgba(255, 107, 107, 0.30) !important;
+            background: var(--danger-hover) !important;
+            box-shadow: 0 10px 24px rgba(var(--danger-rgb), 0.30) !important;
             transform: translateY(-1px);
             filter: none;
         }
@@ -472,23 +552,23 @@ window.addEventListener("load", () => {
             margin-top: 15px;
         }
         .product-card {
-            background: rgba(30, 42, 74, 0.7);
+            background: rgba(var(--card-rgb), 0.7);
             border-radius: 20px;
             padding: 10px;
             width: 160px;
             text-align: center;
-            border: 2px solid #4a4a8a;
+            border: 2px solid var(--border-color);
             position: relative;
             transition: all 0.3s;
         }
-        .product-card.selected { border-color: #8a7aff; background: rgba(52, 66, 122, 0.92); box-shadow: 0 0 0 1px rgba(138,122,255,0.22), 0 10px 24px rgba(0,0,0,0.18); }
-        .product-card:hover { transform: translateY(-2px); border-color: rgba(138,122,255,0.5); }
+        .product-card.selected { border-color: var(--accent-a); background: rgba(var(--dragover-rgb), 0.92); box-shadow: 0 0 0 1px rgba(var(--accent-rgb),0.22), 0 10px 24px rgba(0,0,0,0.18); }
+        .product-card:hover { transform: translateY(-2px); border-color: rgba(var(--accent-rgb),0.5); }
         .product-card img {
             width: 120px;
             height: 120px;
             border-radius: 12px;
             object-fit: contain;
-            background: #0a0a1a;
+            background: var(--stage-bg);
             display: block;
             margin: 0 auto;
         }
@@ -499,11 +579,11 @@ window.addEventListener("load", () => {
             cursor: pointer;
         }
         .product-name:hover {
-            color: #8a7aff;
+            color: var(--accent-a);
         }
         .product-dim {
             font-size: 9px;
-            color: #aaa;
+            color: var(--text-muted);
         }
         .product-checkbox {
             position: absolute;
@@ -511,7 +591,7 @@ window.addEventListener("load", () => {
             left: 8px;
             width: 18px;
             height: 18px;
-            accent-color: #8a7aff;
+            accent-color: var(--accent-a);
             z-index: 10;
         }
         /*
@@ -519,7 +599,7 @@ window.addEventListener("load", () => {
             position: absolute;
             top: 5px;
             right: 5px;
-            background: #8a7aff;
+            background: var(--accent-a);
             border-radius: 12px;
             padding: 2px 6px;
             font-size: 9px;
@@ -532,7 +612,7 @@ window.addEventListener("load", () => {
             position: absolute;
             bottom: 5px;
             left: 5px;
-            background: rgba(138, 122, 255, 0.8);
+            background: rgba(var(--accent-rgb), 0.8);
             border-radius: 12px;
             padding: 2px 6px;
             font-size: 8px;
@@ -554,14 +634,14 @@ window.addEventListener("load", () => {
             z-index: 10;
             transition: all 0.2s;
         }
-        .delete-btn { top: -8px; right: -8px; background: #ff6b6b; }
+        .delete-btn { top: -8px; right: -8px; background: var(--danger); }
         .rename-btn { top: -8px; left: -8px; background: #4a8aff; }
-        .rotate-btn { top: -8px; left: 50%; transform: translateX(-50%); background: #8a7aff; }
+        .rotate-btn { top: -8px; left: 50%; transform: translateX(-50%); background: var(--accent-a); }
         .delete-btn:hover, .rename-btn:hover, .rotate-btn:hover { transform: scale(1.1); }
         .rotate-btn:hover { transform: translateX(-50%) scale(1.1); }
 
         .mockup-btn {
-            background: linear-gradient(135deg, #7e74e8, #6b5fd3);
+            background: linear-gradient(135deg, #7e74e8, var(--accent-b));
             flex: 1;
             padding: 8px 10px;
             font-size: 11px;
@@ -577,7 +657,7 @@ window.addEventListener("load", () => {
         }
         .scale-slider-container label {
             font-size: 9px;
-            color: #aaa;
+            color: var(--text-muted);
             margin-bottom: 4px;
             display: block;
         }
@@ -585,7 +665,7 @@ window.addEventListener("load", () => {
             width: 100%;
             height: 4px;
             -webkit-appearance: none;
-            background: #4a4a8a;
+            background: var(--border-color);
             border-radius: 5px;
         }
         .individual-scale-slider::-webkit-slider-thumb {
@@ -593,12 +673,12 @@ window.addEventListener("load", () => {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background: #8a7aff;
+            background: var(--accent-a);
             cursor: pointer;
         }
         .scale-value {
             font-size: 9px;
-            color: #8a7aff;
+            color: var(--accent-a);
             margin-top: 4px;
             display: block;
             text-align: center;
@@ -606,8 +686,8 @@ window.addEventListener("load", () => {
         .zoom-controls {
             margin: 14px auto 0;
             width: min(560px, 100%);
-            background: rgba(10, 10, 26, 0.45);
-            border: 1px solid rgba(138, 122, 255, 0.22);
+            background: rgba(var(--deep-rgb), 0.45);
+            border: 1px solid rgba(var(--accent-rgb), 0.22);
             border-radius: 22px;
             padding: 14px;
             text-align: left;
@@ -616,12 +696,12 @@ window.addEventListener("load", () => {
         .zoom-controls-title {
             font-family: 'Caveat', cursive;
             font-size: 26px;
-            color: #e0d9ff;
+            color: var(--accent-light);
             margin-bottom: 4px;
         }
         .zoom-controls-note {
             font-size: 11px;
-            color: #b8b1d9;
+            color: var(--accent-soft2);
             line-height: 1.4;
             margin-bottom: 10px;
             font-family: 'Quicksand', sans-serif;
@@ -636,14 +716,14 @@ window.addEventListener("load", () => {
             gap: 10px;
             margin-bottom: 6px;
             font-size: 12px;
-            color: #f2eeff;
+            color: var(--text-primary);
             font-family: 'Quicksand', sans-serif;
         }
         .zoom-slider-row input[type="range"] {
             width: 100%;
             height: 5px;
             -webkit-appearance: none;
-            background: #4a4a8a;
+            background: var(--border-color);
             border-radius: 999px;
         }
         .zoom-slider-row input[type="range"]::-webkit-slider-thumb {
@@ -651,7 +731,7 @@ window.addEventListener("load", () => {
             width: 14px;
             height: 14px;
             border-radius: 50%;
-            background: #8a7aff;
+            background: var(--accent-a);
             cursor: pointer;
         }
         .zoom-actions {
@@ -663,7 +743,7 @@ window.addEventListener("load", () => {
 
         .privacy-note {
             font-size: 13px;
-            color: rgba(255,255,255,0.82);
+            color: rgba(var(--fg-rgb),0.82);
             margin: -6px 0 16px;
             text-align: center;
             line-height: 1.4;
@@ -671,7 +751,7 @@ window.addEventListener("load", () => {
         }
 
         .pattern-tray-box {
-            background: rgba(30, 42, 74, 0.5);
+            background: rgba(var(--card-rgb), 0.5);
             border-radius: 24px;
             padding: 15px;
             margin-bottom: 15px;
@@ -679,13 +759,13 @@ window.addEventListener("load", () => {
         .pattern-tray-box label {
             display: block;
             font-size: 12px;
-            color: #aaa;
+            color: var(--text-muted);
             margin-bottom: 6px;
             font-family: 'Quicksand', sans-serif;
         }
         .pattern-tray-help {
             font-size: 11px;
-            color: rgba(255,255,255,0.68);
+            color: rgba(var(--fg-rgb),0.68);
             line-height: 1.4;
             margin-bottom: 10px;
             font-family: 'Quicksand', sans-serif;
@@ -693,23 +773,23 @@ window.addEventListener("load", () => {
         .batch-add-btn {
             width: 100%;
             margin-top: 8px;
-            background: rgba(255,255,255,.06);
-            border: 1px dashed #8a7aff;
-            color: #e0d9ff;
+            background: rgba(var(--fg-rgb),.06);
+            border: 1px dashed var(--accent-a);
+            color: var(--accent-light);
             font-weight: 600;
         }
         .batch-add-btn.hidden { display: none; }
         .batch-process-btn {
             width: 100%;
             margin-top: 8px;
-            background: linear-gradient(135deg, #8a7aff, #6b5fd3);
+            background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
             font-weight: 600;
         }
         .batch-process-btn.hidden { display: none; }
         .batch-progress {
             margin-top: 10px;
             font-size: 12px;
-            color: #b8aaff;
+            color: var(--accent-soft);
             line-height: 1.4;
             font-family: 'Quicksand', sans-serif;
         }
@@ -741,7 +821,7 @@ window.addEventListener("load", () => {
         }
         .hidden { display: none !important; }
         .modal-content {
-            background: linear-gradient(135deg, #1e2a4a, #16213e);
+            background: linear-gradient(135deg, var(--panel-dark), var(--input-bg));
             border-radius: 32px;
             padding: 25px;
             text-align: center;
@@ -751,7 +831,7 @@ window.addEventListener("load", () => {
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
-            border: 2px solid #8a7aff;
+            border: 2px solid var(--accent-a);
         }
         .modal-content canvas { 
             max-width: 100%; 
@@ -791,15 +871,15 @@ window.addEventListener("load", () => {
             overflow: hidden;
             border-radius: 24px;
             padding: 22px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(138,122,255,0.05));
-            border: 1px solid rgba(138, 122, 255, 0.16);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+            background: linear-gradient(135deg, rgba(var(--fg-rgb),0.03), rgba(var(--accent-rgb),0.05));
+            border: 1px solid rgba(var(--accent-rgb), 0.16);
+            box-shadow: inset 0 1px 0 rgba(var(--fg-rgb),0.04);
         }
         .zoom-preview-pane::after {
             content: "";
             position: absolute;
             inset: 0;
-            background-image: radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px);
+            background-image: radial-gradient(rgba(var(--fg-rgb),0.045) 1px, transparent 1px);
             background-size: 4px 4px;
             opacity: 0.09;
             pointer-events: none;
@@ -815,7 +895,7 @@ window.addEventListener("load", () => {
             width: 100%;
             height: auto;
             max-height: 62vh;
-            background: rgba(10, 10, 26, 0.96);
+            background: rgba(var(--stage-rgb), 0.96);
             border-radius: 18px;
             display: block;
             box-shadow: 0 10px 28px rgba(0,0,0,0.24);
@@ -845,7 +925,7 @@ window.addEventListener("load", () => {
             width: 8px;
         }
         .zoom-controls::-webkit-scrollbar-thumb {
-            background: rgba(138, 122, 255, 0.35);
+            background: rgba(var(--accent-rgb), 0.35);
             border-radius: 999px;
         }
         .zoom-footer {
@@ -856,10 +936,10 @@ window.addEventListener("load", () => {
     position: fixed;
     bottom: 80px;
     right: 20px;
-    background: linear-gradient(135deg, #1e2a4a, #16213e);
+    background: linear-gradient(135deg, var(--panel-dark), var(--input-bg));
     padding: 12px 24px;
     border-radius: 50px;
-    border: 1px solid #8a7aff;
+    border: 1px solid var(--accent-a);
     z-index: 1100;
     font-size: 14px;
     animation: fadeSlide 0.3s ease;
@@ -883,11 +963,11 @@ window.addEventListener("load", () => {
             padding: 10px;
             border-radius: 40px;
             cursor: pointer;
-            background: #0a0a1a;
+            background: var(--surface-muted);
             font-size: 13px;
             transition: all 0.3s;
         }
-        .unit-btn.active { background: linear-gradient(135deg, #8a7aff, #6b5fd3); color: white; }
+        .unit-btn.active { background: linear-gradient(135deg, var(--accent-a), var(--accent-b)); color: white; }
         .scale-range { display: flex; gap: 10px; align-items: center; }
         .scale-range input { flex: 1; }
         .scale-labels {
@@ -901,7 +981,7 @@ window.addEventListener("load", () => {
             text-align: center;
             margin-top: 8px;
             padding: 8px;
-            background: rgba(138, 122, 255, 0.2);
+            background: rgba(var(--accent-rgb), 0.2);
             border-radius: 40px;
             font-family: monospace;
         }
@@ -916,19 +996,19 @@ window.addEventListener("load", () => {
             padding: 8px;
             border-radius: 40px;
             cursor: pointer;
-            background: #0a0a1a;
+            background: var(--surface-muted);
             font-size: 12px;
             transition: all 0.3s;
         }
         .tile-option.active {
             cursor: default;
-            background: linear-gradient(135deg, #8a7aff, #6b5fd3);
+            background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
             color: white;
         }
         .repeat-detected-note {
             margin-top: 10px;
             font-size: 12px;
-            color: rgba(255,255,255,0.85);
+            color: rgba(var(--fg-rgb),0.85);
             font-family: 'Quicksand', sans-serif;
             text-align: center;
             line-height: 1.4;
@@ -948,11 +1028,11 @@ window.addEventListener("load", () => {
             flex: 1;
             padding: 6px;
             font-size: 11px;
-            background: #0a0a1a;
+            background: var(--surface-muted);
             border-radius: 30px;
         }
         .preset-btn:hover {
-            background: #8a7aff;
+            background: var(--accent-a);
         }
         .scale-presets {
             display: flex;
@@ -974,16 +1054,31 @@ window.addEventListener("load", () => {
         .custom-product-title {
             font-family: 'Caveat', cursive;
             font-size: 28px;
-            color: #e0d9ff;
+            color: var(--accent-light);
             line-height: 1;
         }
         .custom-product-subtitle {
             font-size: 11px;
-            color: #b8b1d9;
+            color: var(--accent-soft2);
             margin-top: 4px;
             font-family: 'Quicksand', sans-serif;
         }
     
+.theme-toggle-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(var(--panel-rgb), 0.9);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    z-index: 9999;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+
 .feedback-btn {
     position: fixed;
     bottom: 20px;
@@ -1008,12 +1103,12 @@ window.addEventListener("load", () => {
             position: sticky;
             top: 0;
             z-index: 60;
-            background: rgba(22, 33, 62, 0.98);
+            background: rgba(var(--panel-rgb), 0.98);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             padding: 12px 0 14px;
             margin: 0 0 14px 0;
-            border-bottom: 1px solid rgba(138, 122, 255, 0.18);
+            border-bottom: 1px solid rgba(var(--accent-rgb), 0.18);
         }
         .products-topbar-main {
             display:flex;
@@ -1037,14 +1132,14 @@ window.addEventListener("load", () => {
             width:100%;
         }
         .topbar-utility-btn {
-            background: rgba(138, 122, 255, 0.14);
-            border: 1px solid rgba(138, 122, 255, 0.3);
-            color: #ece6ff;
+            background: rgba(var(--accent-rgb), 0.14);
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            color: var(--text-primary);
             padding: 10px 14px;
         }
         .topbar-count {
             font-size: 13px;
-            color: rgba(255,255,255,0.74);
+            color: rgba(var(--fg-rgb),0.74);
             min-width: 42px;
             text-align:right;
         }
@@ -1058,9 +1153,9 @@ window.addEventListener("load", () => {
             padding-right:0;
         }
         .workspace-btn {
-            background: rgba(138,122,255,0.14);
-            border: 1px dashed rgba(138,122,255,0.42);
-            color: #e7e0ff;
+            background: rgba(var(--accent-rgb),0.14);
+            border: 1px dashed rgba(var(--accent-rgb),0.42);
+            color: var(--accent-pale);
             padding: 9px 14px;
         }
         .product-section {
@@ -1069,19 +1164,19 @@ window.addEventListener("load", () => {
         .product-section-heading {
             font-family: 'Caveat', cursive;
             font-size: 26px;
-            color: #e7e0ff;
+            color: var(--accent-pale);
             margin-bottom: 4px;
         }
         .product-section-subtitle {
             font-size: 11px;
-            color: #b8b1d9;
+            color: var(--accent-soft2);
             margin-bottom: 10px;
             font-family: 'Quicksand', sans-serif;
         }
         .product-grid:empty::before {
             content: 'No sizes yet — add one below.';
             display:block;
-            color:#aaa;
+            color:var(--text-muted);
             padding:18px 0;
             font-family:'Quicksand', sans-serif;
         }
@@ -1098,7 +1193,7 @@ window.addEventListener("load", () => {
 
 
         #selectedSummary {
-            color: rgba(255,255,255,0.92);
+            color: rgba(var(--fg-rgb),0.92);
             font-size: 13px;
             line-height: 1.35;
             margin-top: 8px;
@@ -1127,7 +1222,7 @@ window.addEventListener("load", () => {
             align-items: center;
         }
         #selectedSummary {
-            color: rgba(255,255,255,0.92);
+            color: rgba(var(--fg-rgb),0.92);
             font-size: 13px;
             line-height: 1.35;
             white-space: normal;
@@ -1155,7 +1250,7 @@ window.addEventListener("load", () => {
             width: 8px;
         }
         .content-scroll::-webkit-scrollbar-thumb {
-            background: rgba(138, 122, 255, 0.35);
+            background: rgba(var(--accent-rgb), 0.35);
             border-radius: 999px;
         }
         .products-topbar {
@@ -1173,12 +1268,12 @@ window.addEventListener("load", () => {
             margin-top: 8px;
         }
         .mini-pill {
-            background: rgba(138,122,255,0.20);
-            border: 1px solid rgba(138,122,255,0.42);
+            background: rgba(var(--accent-rgb),0.20);
+            border: 1px solid rgba(var(--accent-rgb),0.42);
             padding: 4px 8px;
             border-radius: 999px;
             font-size: 12px;
-            color: rgba(255,255,255,0.95);
+            color: rgba(var(--fg-rgb),0.95);
             line-height: 1.2;
             font-family: 'Quicksand', sans-serif;
         }
@@ -1242,7 +1337,7 @@ window.addEventListener("load", () => {
         }
         .preview-only-close-btn {
             background: linear-gradient(135deg, #7c6cff, #a88bff);
-            color: #ffffff;
+            color: white;
             border: none;
             padding: 10px 22px;
             border-radius: 999px;
@@ -1268,8 +1363,8 @@ window.addEventListener("load", () => {
             min-width: 180px;
             padding: 6px 10px;
             border-radius: 16px;
-            background: rgba(138, 122, 255, 0.08);
-            border: 1px dashed rgba(138, 122, 255, 0.24);
+            background: rgba(var(--accent-rgb), 0.08);
+            border: 1px dashed rgba(var(--accent-rgb), 0.24);
             text-align: right;
             font-family: 'Caveat', cursive;
             font-size: 22px;
@@ -1319,7 +1414,7 @@ window.addEventListener("load", () => {
             width: auto !important;
             text-align: right !important;
             font-size: 13px !important;
-            color: rgba(255,255,255,0.74) !important;
+            color: rgba(var(--fg-rgb),0.74) !important;
             order: 99 !important;
         }
         @media (max-width: 1100px) {
@@ -1333,7 +1428,7 @@ window.addEventListener("load", () => {
         .custom-name-label {
             display: block;
             font-size: 12px;
-            color: #aaa;
+            color: var(--text-muted);
             margin: 8px 0 6px;
             font-family: 'Quicksand', sans-serif;
         }
@@ -1341,15 +1436,15 @@ window.addEventListener("load", () => {
             width: 100%;
             padding: 12px;
             border-radius: 40px;
-            border: 1px solid #4a4a8a;
-            background: #16213e;
-            color: white;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
             font-size: 14px;
             font-family: 'Quicksand', sans-serif;
             margin-bottom: 12px;
         }
         .custom-name-input::placeholder {
-            color: rgba(255,255,255,0.45);
+            color: rgba(var(--fg-rgb),0.45);
         }
 
 
@@ -1360,7 +1455,7 @@ window.addEventListener("load", () => {
         #customProductsSection .product-grid:empty::before {
             content: '✧ your custom sizes will show here ✧';
             display: block;
-            color: #aaa;
+            color: var(--text-muted);
             padding: 18px 0;
             font-family: 'Quicksand', sans-serif;
             text-align: center;
@@ -1387,18 +1482,18 @@ window.addEventListener("load", () => {
     flex: 1 1 120px;
     padding: 9px 10px;
     font-size: 12px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(138,122,255,0.34);
-    color: #e0d9ff;
+    background: rgba(var(--fg-rgb),0.04);
+    border: 1px solid rgba(var(--accent-rgb),0.34);
+    color: var(--accent-light);
     box-shadow: none;
 }
 .basic-mode-buttons button.active {
-    background: linear-gradient(135deg,#8a7aff,#6b5fd3);
-    color: #fff;
+    background: linear-gradient(135deg,var(--accent-a),var(--accent-b));
+    color: white;
 }
 .basic-help {
     font-size: 11px;
-    color: rgba(255,255,255,.72);
+    color: rgba(var(--fg-rgb),.72);
     line-height: 1.35;
     margin-top: 8px;
     font-family: 'Quicksand', sans-serif;
@@ -1406,8 +1501,8 @@ window.addEventListener("load", () => {
 
 /* Upload diagnostics + safer preview fallbacks */
 .diagnostic-panel {
-    background: rgba(10, 10, 26, 0.38);
-    border: 1px solid rgba(138, 122, 255, 0.32);
+    background: rgba(var(--deep-rgb), 0.38);
+    border: 1px solid rgba(var(--accent-rgb), 0.32);
     border-radius: 22px;
     padding: 12px;
     margin: 0 0 16px;
@@ -1432,12 +1527,12 @@ window.addEventListener("load", () => {
 .diagnostic-title {
     font-family: 'Caveat', cursive;
     font-size: 24px;
-    color: #e0d9ff;
+    color: var(--accent-light);
     margin-bottom: 4px;
 }
 .diagnostic-status {
     font-size: 12px;
-    color: rgba(255,255,255,0.86);
+    color: rgba(var(--fg-rgb),0.86);
     line-height: 1.4;
     margin-bottom: 8px;
 }
@@ -1458,8 +1553,8 @@ window.addEventListener("load", () => {
     overflow: auto;
     padding: 8px 10px;
     border-radius: 14px;
-    background: rgba(0,0,0,0.22);
-    color: rgba(255,255,255,0.82);
+    background: var(--input-bg);
+    color: var(--text-primary);
     font-size: 11px;
     line-height: 1.45;
     white-space: pre-wrap;
@@ -1474,19 +1569,19 @@ window.addEventListener("load", () => {
 .diagnostic-btn {
     padding: 8px 12px;
     font-size: 11px;
-    background: rgba(138,122,255,0.18);
-    border: 1px solid rgba(138,122,255,0.34);
+    background: rgba(var(--accent-rgb),0.18);
+    border: 1px solid rgba(var(--accent-rgb),0.34);
 }
 .thumb-fallback {
     width: 120px;
     height: 120px;
     border-radius: 12px;
-    background: #0a0a1a;
-    border: 1px dashed rgba(138,122,255,0.45);
+    background: var(--stage-bg);
+    border: 1px dashed rgba(var(--accent-rgb),0.45);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255,255,255,0.68);
+    color: rgba(var(--fg-rgb),0.68);
     font-size: 28px;
     margin: 0 auto;
 }
@@ -1502,8 +1597,8 @@ window.addEventListener("load", () => {
     margin:12px auto 0;
     padding:6px;
     border-radius:999px;
-    background:rgba(10,10,26,.52);
-    border:1px solid #4a4a8a;
+    background:rgba(var(--deep-rgb),.52);
+    border:1px solid var(--border-color);
 }
 .notebook-cover-toggle { width:min(520px, 100%); margin-top:8px; }
 .product-preview-mode-toggle button,
@@ -1511,16 +1606,16 @@ window.addEventListener("load", () => {
     flex:1;
     padding:9px 14px;
     border-radius:999px;
-    background:rgba(255,255,255,.05) !important;
-    border:1px solid rgba(255,255,255,.08) !important;
-    color:#ececec !important;
+    background:rgba(var(--fg-rgb),.05) !important;
+    border:1px solid rgba(var(--fg-rgb),.08) !important;
+    color:var(--text-primary) !important;
     box-shadow:none !important;
 }
 .product-preview-mode-toggle button.active,
 .notebook-cover-toggle button.active {
-    background:#5f6df5 !important;
-    color:#fff !important;
-    box-shadow:0 8px 18px rgba(95,109,245,.35) !important;
+    background:var(--blue-accent) !important;
+    color:white !important;
+    box-shadow:0 8px 18px rgba(var(--blue-accent-rgb),.35) !important;
 }
 .product-preview-mode-toggle.hidden,
 .notebook-cover-toggle.hidden { display:none !important; }
@@ -1535,16 +1630,18 @@ window.addEventListener("load", () => {
     width:100%;
     padding:10px 16px;
     border-radius:999px;
-    background:#5f6df5 !important;
-    color:#fff !important;
-    box-shadow:0 8px 18px rgba(95,109,245,.35) !important;
+    background:var(--blue-accent) !important;
+    color:white !important;
+    box-shadow:0 8px 18px rgba(var(--blue-accent-rgb),.35) !important;
     font-weight:700;
 }
 .mockup-download-wrap.hidden { display:none !important; }
 </style>
+</style>
 
 </head>
 <body>
+<button class="theme-toggle-btn" id="themeToggleBtn" type="button" title="Switch between light and dark">🌙 dark</button>
 <div class="container">
 <div class="header">
 <h1>✿ Creative Resizer Pro ✿</h1>
@@ -1665,7 +1762,7 @@ window.addEventListener("load", () => {
 <div class="info-row"><span>size</span><span id="sizeText">0x0</span></div>
 <div class="info-row" style="display:none;"><span>tile size</span><span id="tiledSizeText">0x0</span></div>
 <div class="info-row"><span>DPI</span><span id="dpiText">300</span></div>
-<div id="downloadHint" style="font-size:11px; color:#b8aaff; margin-top:8px; line-height:1.4;">your files will download as a ZIP.</div>
+<div id="downloadHint" style="font-size:11px; color:var(--accent-soft); margin-top:8px; line-height:1.4;">your files will download as a ZIP.</div>
 </div>
 <div class="content">
 <div class="products-topbar">
@@ -1704,12 +1801,12 @@ window.addEventListener("load", () => {
 <input id="customW" placeholder="width" step="any" type="number" value="12"/>
 <input id="customH" placeholder="height" step="any" type="number" value="12"/>
 </div>
-<div style="font-size: 11px; color: #aaa; margin-bottom: 10px;">
+<div style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">
 <span id="customWLabel">width (inches)</span> × <span id="customHLabel">height (inches)</span>
 </div>
 <!-- <label style="display:block; font-size:12px; color:#aaa; margin-bottom:6px; font-family:'Quicksand', sans-serif;">edge behaviour</label> -->
-<label style="display:block; font-size:12px; color:#aaa; margin-bottom:6px; font-family:'Quicksand', sans-serif;">finish</label>
-<select id="customMode" style="width:100%; padding:12px; border-radius:40px; border:1px solid #4a4a8a; background:#16213e; color:white; font-size:14px; font-family:'Quicksand', sans-serif; margin-bottom:10px;">
+<label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px; font-family:'Quicksand', sans-serif;">finish</label>
+<select id="customMode" style="width:100%; padding:12px; border-radius:40px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-primary); font-size:14px; font-family:'Quicksand', sans-serif; margin-bottom:10px;">
 <option selected="" value="wrap">seamless</option>
 <!-- <option value="flat">non-seamless</option> -->
 <option value="flat">non-seamless</option>
@@ -1757,7 +1854,7 @@ window.addEventListener("load", () => {
 <div class="zoom-slider-row" id="edgeBehaviorRow">
 <!-- <label><span>edge behaviour</span><span id="edgeBehaviorHint">non-seamless</span></label> -->
 <label><span>finish</span><span id="edgeBehaviorHint">non-seamless</span></label>
-<select id="edgeBehaviorSelect" style="width:100%; padding:12px; border-radius:40px; border:1px solid #4a4a8a; background:#16213e; color:white; font-size:14px; font-family:'Quicksand', sans-serif;">
+<select id="edgeBehaviorSelect" style="width:100%; padding:12px; border-radius:40px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-primary); font-size:14px; font-family:'Quicksand', sans-serif;">
 <option value="flat">non-seamless</option>
 <option value="wrap">seamless</option>
 </select>
@@ -3123,7 +3220,7 @@ function regenerateAllCanvases() {
 
     function renderProductGrid() {
         if (!originalImg) {
-            if (customProductGrid) customProductGrid.innerHTML = '<div style="color:#aaa; text-align:center; padding:18px 0;">✧ upload your seamless pattern to begin ✧</div>';
+            if (customProductGrid) customProductGrid.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:18px 0;">✧ upload your seamless pattern to begin ✧</div>';
             if (popularProductGrid) popularProductGrid.innerHTML = '';
             syncWorkspaceButtons();
             return;
@@ -3184,7 +3281,7 @@ function regenerateAllCanvases() {
             const showRename = p.isCustom ? `<div class="rename-btn" data-idx="${i}">✎</div>` : '';
             const showDelete = p.isCustom ? `<div class="delete-btn" data-idx="${i}">✖</div>` : '';
             const showRotate = p.type === "wrap" && p.rotatable ? `<div class="rotate-btn" data-idx="${i}" title="rotate wrap">↻</div>` : '';
-            const subBadge = p.isCustom ? '<div class="product-dim" style="margin-top:4px; color:#d5ccff;">custom product</div>' : '<div class="product-dim" style="margin-top:4px; color:#d5ccff;">popular Etsy product</div>';
+            const subBadge = p.isCustom ? '<div class="product-dim" style="margin-top:4px; color:var(--accent-soft2);">custom product</div>' : '<div class="product-dim" style="margin-top:4px; color:var(--accent-soft2);">popular Etsy product</div>';
 
             /* Flash mop: removed helper text under Preview button.
                Reason: it reads like dev language and adds clutter.
@@ -3222,7 +3319,7 @@ function regenerateAllCanvases() {
         }
 
         if (customProductGrid) {
-            customProductGrid.innerHTML = customHtml || '<div style="color:#aaa; text-align:center; padding:18px 0;">✧ your custom sizes will show here ✧</div>';
+            customProductGrid.innerHTML = customHtml || '<div style="color:var(--text-muted); text-align:center; padding:18px 0;">✧ your custom sizes will show here ✧</div>';
         }
         if (popularProductGrid) popularProductGrid.innerHTML = showPopularProducts ? popularHtml : '';
         syncWorkspaceButtons();
@@ -5985,6 +6082,37 @@ window.addEventListener('load', () => {
                 downloadAllPatternsBtn.disabled = false;
                 renderTrayStrip();
             }
+        };
+    }
+</script>
+
+<script>
+    // Light/dark theme toggle. Only swaps CSS custom properties used by the
+    // surrounding UI chrome - it never touches canvas drawing code, so
+    // pattern previews and product mock-ups always render identically in
+    // either theme.
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    function applyThemeButtonLabel(theme) {
+        if (!themeToggleBtn) return;
+        themeToggleBtn.textContent = theme === 'light' ? '☀️ light' : '🌙 dark';
+    }
+
+    (function initTheme() {
+        let saved = null;
+        try { saved = localStorage.getItem('crpTheme'); } catch (e) {}
+        const theme = (saved === 'light' || saved === 'dark') ? saved : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        applyThemeButtonLabel(theme);
+    })();
+
+    if (themeToggleBtn) {
+        themeToggleBtn.onclick = () => {
+            const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+            const next = current === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            applyThemeButtonLabel(next);
+            try { localStorage.setItem('crpTheme', next); } catch (e) {}
         };
     }
 </script>
