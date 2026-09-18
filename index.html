@@ -5132,34 +5132,34 @@ window.addEventListener('load', () => {
         if (!designCanvas || !imageReady(A.mugBg) || !imageReady(A.mugMask)) return false;
 
         const canvas = zoomCanvas;
-        canvas.width = 1024;
-        canvas.height = 1024;
+        canvas.width = 2048;
+        canvas.height = 2048;
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, 1024, 1024);
+        ctx.clearRect(0, 0, 2048, 2048);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
 
-        ctx.drawImage(A.mugBg, 0, 0, 1024, 1024);
+        ctx.drawImage(A.mugBg, 0, 0, 2048, 2048);
 
         const pos = getPositionState(idx);
         const scale = getRenderScale(products[idx], idx) || 1;
 
         // Mug rule: fill the entire mug mask with the original seamless tile.
         // Do not use the wide wrap canvas here because it can become a horizontal band.
-        fillMaskWithOriginalPattern(ctx, A.mugMask, 1024, 1024, pos.x * 9, pos.y * 9, getCurrentWrapRepeatCount(products[idx], idx), 'multiply', 0.96);
+        fillMaskWithOriginalPattern(ctx, A.mugMask, 2048, 2048, pos.x * 18, pos.y * 18, getCurrentWrapRepeatCount(products[idx], idx), 'multiply', 0.96);
 
         if (imageReady(A.mugShadow)) {
             ctx.save();
             ctx.globalCompositeOperation = 'multiply';
             ctx.globalAlpha = 0.48;
-            ctx.drawImage(A.mugShadow, 0, 0, 1024, 1024);
+            ctx.drawImage(A.mugShadow, 0, 0, 2048, 2048);
             ctx.restore();
         }
         if (imageReady(A.mugHighlight)) {
             ctx.save();
             ctx.globalCompositeOperation = 'screen';
             ctx.globalAlpha = 0.40;
-            ctx.drawImage(A.mugHighlight, 0, 0, 1024, 1024);
+            ctx.drawImage(A.mugHighlight, 0, 0, 2048, 2048);
             ctx.restore();
         }
         return true;
@@ -5175,15 +5175,15 @@ window.addEventListener('load', () => {
             if (!imageReady(A.tumbler30Bg) || !imageReady(A.tumbler30Mask)) return false;
 
             const canvas = zoomCanvas;
-            canvas.width = 1024;
-            canvas.height = 1024;
+            canvas.width = 2048;
+            canvas.height = 2048;
             const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, 1024, 1024);
+            ctx.clearRect(0, 0, 2048, 2048);
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
             // 1. Real kitchen scene / blank tumbler photo.
-            ctx.drawImage(A.tumbler30Bg, 0, 0, 1024, 1024);
+            ctx.drawImage(A.tumbler30Bg, 0, 0, 2048, 2048);
 
             // 2. Pattern clipped into the tumbler mask, with tiny realism blur.
             if (originalImg) {
@@ -5192,15 +5192,15 @@ window.addEventListener('load', () => {
                 const patternSource = originalImg;
                 const sw = patternSource.naturalWidth || patternSource.width || 1;
                 const sh = patternSource.naturalHeight || patternSource.height || 1;
-                const bounds = getMaskBounds(A.tumbler30Mask, 1024, 1024);
+                const bounds = getMaskBounds(A.tumbler30Mask, 2048, 2048);
                 const tileW = Math.max(30, bounds.w / repeatCount);
                 const tileH = tileW * (sh / sw);
-                const ox = ((pos.x * 9) % tileW + tileW) % tileW;
-                const oy = ((pos.y * 7) % tileH + tileH) % tileH;
+                const ox = ((pos.x * 18) % tileW + tileW) % tileW;
+                const oy = ((pos.y * 14) % tileH + tileH) % tileH;
 
                 const layer = document.createElement('canvas');
-                layer.width = 1024;
-                layer.height = 1024;
+                layer.width = 2048;
+                layer.height = 2048;
                 const lctx = layer.getContext('2d');
                 lctx.imageSmoothingEnabled = true;
                 lctx.imageSmoothingQuality = 'high';
@@ -5221,21 +5221,21 @@ window.addEventListener('load', () => {
 
                 lctx.filter = 'none';
                 lctx.globalCompositeOperation = 'destination-in';
-                lctx.drawImage(A.tumbler30Mask, 0, 0, 1024, 1024);
+                lctx.drawImage(A.tumbler30Mask, 0, 0, 2048, 2048);
 
                 ctx.drawImage(layer, 0, 0);
             }
 
             // 3. Bring back blank tumbler body shading so pattern feels printed, not stickered.
             const bodyShade = document.createElement('canvas');
-            bodyShade.width = 1024;
-            bodyShade.height = 1024;
+            bodyShade.width = 2048;
+            bodyShade.height = 2048;
             const bctx = bodyShade.getContext('2d');
             bctx.imageSmoothingEnabled = true;
             bctx.imageSmoothingQuality = 'high';
-            bctx.drawImage(A.tumbler30Bg, 0, 0, 1024, 1024);
+            bctx.drawImage(A.tumbler30Bg, 0, 0, 2048, 2048);
             bctx.globalCompositeOperation = 'destination-in';
-            bctx.drawImage(A.tumbler30Mask, 0, 0, 1024, 1024);
+            bctx.drawImage(A.tumbler30Mask, 0, 0, 2048, 2048);
 
             ctx.save();
             ctx.globalCompositeOperation = 'multiply';
@@ -5248,7 +5248,7 @@ window.addEventListener('load', () => {
                 ctx.save();
                 ctx.globalCompositeOperation = 'multiply';
                 ctx.globalAlpha = 0.38;
-                ctx.drawImage(A.tumbler30Overlay, 0, 0, 1024, 1024);
+                ctx.drawImage(A.tumbler30Overlay, 0, 0, 2048, 2048);
                 ctx.restore();
             }
 
@@ -5257,7 +5257,7 @@ window.addEventListener('load', () => {
                 ctx.save();
                 ctx.globalCompositeOperation = 'screen';
                 ctx.globalAlpha = 0.62;
-                ctx.drawImage(A.tumbler30Highlights, 0, 0, 1024, 1024);
+                ctx.drawImage(A.tumbler30Highlights, 0, 0, 2048, 2048);
                 ctx.restore();
             }
 
@@ -5271,22 +5271,22 @@ window.addEventListener('load', () => {
         if (!designCanvas || !imageReady(A.tumblerBg) || !imageReady(A.tumblerMask)) return false;
 
         const canvas = zoomCanvas;
-        canvas.width = 1024;
-        canvas.height = 1024;
+        canvas.width = 2048;
+        canvas.height = 2048;
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, 1024, 1024);
+        ctx.clearRect(0, 0, 2048, 2048);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
 
-        ctx.drawImage(A.tumblerBg, 0, 0, 1024, 1024);
+        ctx.drawImage(A.tumblerBg, 0, 0, 2048, 2048);
 
         const pos = getPositionState(idx);
-        drawHorizontalWrapClipped(ctx, designCanvas, A.tumblerMask, 1024, 1024, pos.x * 9, pos.y * 7, 1.04, 'multiply', 0.94);
+        drawHorizontalWrapClipped(ctx, designCanvas, A.tumblerMask, 2048, 2048, pos.x * 18, pos.y * 14, 1.04, 'multiply', 0.94);
 
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
         ctx.globalAlpha = 0.12;
-        ctx.drawImage(A.tumblerBg, 0, 0, 1024, 1024);
+        ctx.drawImage(A.tumblerBg, 0, 0, 2048, 2048);
         ctx.restore();
 
         return true;
@@ -5645,23 +5645,23 @@ window.addEventListener('load', () => {
     const mask = mockupAssets.greetingCardMask;
     if(!bg || !mask || !bg.complete || !mask.complete) return false;
     const canvas = zoomCanvas;
-    canvas.width = 1024; canvas.height = 1024;
+    canvas.width = 2048; canvas.height = 2048;
     const ctx = canvas.getContext('2d', { willReadFrequently:true });
-    ctx.clearRect(0,0,1024,1024);
+    ctx.clearRect(0,0,2048,2048);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(bg,0,0,1024,1024);
+    ctx.drawImage(bg,0,0,2048,2048);
 
     const layer = document.createElement('canvas');
-    layer.width = 1024; layer.height = 1024;
+    layer.width = 2048; layer.height = 2048;
     const lctx = layer.getContext('2d');
-    lctx.clearRect(0,0,1024,1024);
-    const rawQuad = getGreetingCardMaskQuad(mask,1024,1024);
+    lctx.clearRect(0,0,2048,2048);
+    const rawQuad = getGreetingCardMaskQuad(mask,2048,2048);
     // Slight inward move keeps the design away from fuzzy mask edges while preserving the card perspective.
     const cardQuad = insetQuadTowardCenter(rawQuad, 0.026);
     drawImageToQuadPerspective(lctx, designCanvas, cardQuad, 40);
     lctx.globalCompositeOperation = 'destination-in';
-    lctx.drawImage(makeLumMask(mask,1024,1024),0,0);
+    lctx.drawImage(makeLumMask(mask,2048,2048),0,0);
 
     ctx.save();
     ctx.globalCompositeOperation = 'multiply';
@@ -5672,7 +5672,7 @@ window.addEventListener('load', () => {
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
     ctx.globalAlpha = 0.05;
-    ctx.drawImage(bg,0,0,1024,1024);
+    ctx.drawImage(bg,0,0,2048,2048);
     ctx.restore();
     return true;
   }
