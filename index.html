@@ -1295,44 +1295,20 @@ window.addEventListener("load", () => {
             .content { min-height: 60vh; }
         }
 
-        .floating-flow-preview {
-            display: none;
-        }
         @media (max-width: 980px) and (orientation: portrait) {
-            .floating-flow-preview {
-                display: flex;
-                gap: 10px;
+            /* backdrop-filter on an ancestor creates a new containing block
+               for position:fixed children, which would otherwise pin the
+               floating upload box to the sidebar instead of the viewport. */
+            .sidebar { backdrop-filter: none; }
+            #uploadBox.loaded {
                 position: fixed;
-                top: 20px;
+                top: 76px;
                 left: 16px;
-                right: 90px;
+                right: 16px;
                 z-index: 900;
-                background: rgba(var(--panel-rgb), 0.95);
-                backdrop-filter: blur(6px);
-                border: 1px solid var(--border-color);
-                border-radius: 20px;
-                padding: 10px;
-                box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            }
-            .floating-flow-preview-item {
-                flex: 1 1 0;
-                min-width: 0;
-                cursor: pointer;
-            }
-            .floating-flow-preview-item canvas {
-                width: 100%;
-                aspect-ratio: 1 / 1;
-                border-radius: 12px;
-                display: block;
-                background: var(--stage-bg);
-                border: 1px solid var(--accent-a);
-            }
-            .floating-flow-preview-label {
-                font-size: 11px;
-                text-align: center;
-                color: var(--text-muted);
-                margin-top: 4px;
-                font-family: 'Quicksand', sans-serif;
+                max-height: calc(100vh - 96px);
+                overflow-y: auto;
+                box-shadow: 0 10px 28px rgba(0,0,0,0.35);
             }
         }
 
@@ -1695,16 +1671,6 @@ window.addEventListener("load", () => {
 </head>
 <body>
 <button class="theme-toggle-btn" id="themeToggleBtn" type="button" title="Switch between light and dark">🌙 dark</button>
-<div class="floating-flow-preview hidden" id="floatingFlowPreview">
-<div class="floating-flow-preview-item" id="floatingOrigClickable">
-<canvas height="300" id="floatingOrigCanvas" width="300"></canvas>
-<div class="floating-flow-preview-label">your pattern</div>
-</div>
-<div class="floating-flow-preview-item" id="floatingFlowClickable">
-<canvas height="300" id="floatingFlowCanvas" width="300"></canvas>
-<div class="floating-flow-preview-label">how it flows</div>
-</div>
-</div>
 <div class="container">
 <div class="header">
 <h1>✿ Creative Resizer Pro ✿</h1>
@@ -2022,11 +1988,6 @@ window.addEventListener("load", () => {
     const tiledCanvas = document.getElementById('tiledCanvas');
     const tiledPreviewClickable = document.getElementById('tiledPreviewClickable');
     const inlineFlowPreview = document.getElementById('inlineFlowPreview');
-    const floatingFlowPreview = document.getElementById('floatingFlowPreview');
-    const floatingOrigCanvas = document.getElementById('floatingOrigCanvas');
-    const floatingOrigClickable = document.getElementById('floatingOrigClickable');
-    const floatingFlowCanvas = document.getElementById('floatingFlowCanvas');
-    const floatingFlowClickable = document.getElementById('floatingFlowClickable');
     const downloadBtn = document.getElementById('downloadBtn');
     const selectAllBtn = document.getElementById('selectAllBtn');
     const deselectAllBtn = document.getElementById('deselectAllBtn');
@@ -2737,7 +2698,6 @@ ctx.lineWidth = 1;
     }
 
     function updatePreviews() {
-        if (floatingFlowPreview) floatingFlowPreview.classList.toggle('hidden', !originalImg);
         if (!originalImg) return;
 
         const hasRectSource = uploadedOriginalPreviewImg && uploadedOriginalPreviewWidth && uploadedOriginalPreviewHeight && tileSourceMode !== 'square';
@@ -2795,10 +2755,8 @@ ctx.lineWidth = 1;
         };
 
         drawSingleTilePreview(origCanvas);
-        if (floatingOrigCanvas) drawSingleTilePreview(floatingOrigCanvas);
         renderFlowPreview(tiledCanvas, false);
         if (inlineFlowPreview) renderFlowPreview(inlineFlowPreview, false);
-        if (floatingFlowCanvas) renderFlowPreview(floatingFlowCanvas, false);
 
         const tiledWidthInches = (tiledPatternWidth / DPI).toFixed(2);
         const tiledHeightInches = (tiledPatternHeight / DPI).toFixed(2);
@@ -4391,7 +4349,6 @@ function regenerateAllCanvases() {
         try { resetVisibleCanvas(origCanvas, 120, 120); } catch (e) {}
         try { resetVisibleCanvas(tiledCanvas, 120, 120); } catch (e) {}
         try { resetVisibleCanvas(zoomCanvas, 1, 1); } catch (e) {}
-        if (floatingFlowPreview) floatingFlowPreview.classList.add('hidden');
         originalImg = null;
         tiledImg = null;
         patternWidth = 0;
@@ -4553,8 +4510,6 @@ function regenerateAllCanvases() {
     if (origPreviewClickable) origPreviewClickable.onclick = showOriginalPatternZoom;
     tiledPreviewClickable.onclick = showTileZoom;
     openPreviewBtn.onclick = showTileZoom;
-    if (floatingOrigClickable) floatingOrigClickable.onclick = showOriginalPatternZoom;
-    if (floatingFlowClickable) floatingFlowClickable.onclick = showTileZoom;
     const closeZoomModal = () => {
         zoomModal.classList.add('hidden');
         currentZoomProductIndex = -1;
