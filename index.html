@@ -1295,6 +1295,40 @@ window.addEventListener("load", () => {
             .content { min-height: 60vh; }
         }
 
+        .floating-flow-preview {
+            display: none;
+        }
+        @media (max-width: 980px) {
+            .floating-flow-preview {
+                display: block;
+                position: fixed;
+                top: 20px;
+                left: 16px;
+                z-index: 900;
+                background: rgba(var(--panel-rgb), 0.95);
+                backdrop-filter: blur(6px);
+                border: 1px solid var(--border-color);
+                border-radius: 16px;
+                padding: 6px;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+                cursor: pointer;
+            }
+            #floatingFlowCanvas {
+                width: 84px;
+                height: 84px;
+                border-radius: 10px;
+                display: block;
+                background: var(--stage-bg);
+            }
+            .floating-flow-preview-label {
+                font-size: 10px;
+                text-align: center;
+                color: var(--text-muted);
+                margin-top: 4px;
+                font-family: 'Quicksand', sans-serif;
+            }
+        }
+
 
         .zoom-modal-content.preview-only {
             width: min(760px, 94vw);
@@ -1654,6 +1688,10 @@ window.addEventListener("load", () => {
 </head>
 <body>
 <button class="theme-toggle-btn" id="themeToggleBtn" type="button" title="Switch between light and dark">🌙 dark</button>
+<div class="floating-flow-preview hidden" id="floatingFlowPreview">
+<canvas height="300" id="floatingFlowCanvas" width="300"></canvas>
+<div class="floating-flow-preview-label">how it flows</div>
+</div>
 <div class="container">
 <div class="header">
 <h1>✿ Creative Resizer Pro ✿</h1>
@@ -1971,6 +2009,8 @@ window.addEventListener("load", () => {
     const tiledCanvas = document.getElementById('tiledCanvas');
     const tiledPreviewClickable = document.getElementById('tiledPreviewClickable');
     const inlineFlowPreview = document.getElementById('inlineFlowPreview');
+    const floatingFlowPreview = document.getElementById('floatingFlowPreview');
+    const floatingFlowCanvas = document.getElementById('floatingFlowCanvas');
     const downloadBtn = document.getElementById('downloadBtn');
     const selectAllBtn = document.getElementById('selectAllBtn');
     const deselectAllBtn = document.getElementById('deselectAllBtn');
@@ -2681,6 +2721,7 @@ ctx.lineWidth = 1;
     }
 
     function updatePreviews() {
+        if (floatingFlowPreview) floatingFlowPreview.classList.toggle('hidden', !originalImg);
         if (!originalImg) return;
 
         const hasRectSource = uploadedOriginalPreviewImg && uploadedOriginalPreviewWidth && uploadedOriginalPreviewHeight && tileSourceMode !== 'square';
@@ -2740,6 +2781,7 @@ ctx.lineWidth = 1;
         drawSingleTilePreview(origCanvas);
         renderFlowPreview(tiledCanvas, false);
         if (inlineFlowPreview) renderFlowPreview(inlineFlowPreview, false);
+        if (floatingFlowCanvas) renderFlowPreview(floatingFlowCanvas, false);
 
         const tiledWidthInches = (tiledPatternWidth / DPI).toFixed(2);
         const tiledHeightInches = (tiledPatternHeight / DPI).toFixed(2);
@@ -4332,6 +4374,7 @@ function regenerateAllCanvases() {
         try { resetVisibleCanvas(origCanvas, 120, 120); } catch (e) {}
         try { resetVisibleCanvas(tiledCanvas, 120, 120); } catch (e) {}
         try { resetVisibleCanvas(zoomCanvas, 1, 1); } catch (e) {}
+        if (floatingFlowPreview) floatingFlowPreview.classList.add('hidden');
         originalImg = null;
         tiledImg = null;
         patternWidth = 0;
@@ -4493,6 +4536,7 @@ function regenerateAllCanvases() {
     if (origPreviewClickable) origPreviewClickable.onclick = showOriginalPatternZoom;
     tiledPreviewClickable.onclick = showTileZoom;
     openPreviewBtn.onclick = showTileZoom;
+    if (floatingFlowPreview) floatingFlowPreview.onclick = showTileZoom;
     const closeZoomModal = () => {
         zoomModal.classList.add('hidden');
         currentZoomProductIndex = -1;
