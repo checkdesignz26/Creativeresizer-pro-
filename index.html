@@ -6092,11 +6092,24 @@ window.addEventListener('load', () => {
 </script>
 
 <script>
-    // Light/dark theme toggle. Only swaps CSS custom properties used by the
-    // surrounding UI chrome - it never touches canvas drawing code, so
-    // pattern previews and product mock-ups always render identically in
-    // either theme.
+    // Light/dark theme toggle. Swaps CSS custom properties for the
+    // surrounding UI chrome. The letterboxing behind pattern/mock-up
+    // canvases also follows the theme (via getStageBg()), but that color
+    // is baked into the canvas pixels at draw time, so already-drawn
+    // canvases need to be redrawn after a switch or they'd keep showing
+    // the old theme's backdrop color.
     const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    function redrawStageBackedCanvasesForTheme() {
+        if (typeof originalImg === 'undefined' || !originalImg) return;
+        if (typeof updatePreviews === 'function') updatePreviews();
+        if (typeof renderProductGrid === 'function') renderProductGrid();
+        if (typeof currentZoomMode !== 'undefined' && (currentZoomMode === 'tile' || currentZoomMode === 'pattern') && typeof renderPreviewOnlyZoomCanvas === 'function') {
+            renderPreviewOnlyZoomCanvas();
+        } else if (typeof rerenderActiveZoomProduct === 'function') {
+            rerenderActiveZoomProduct().catch(() => {});
+        }
+    }
 
     function applyThemeButtonLabel(theme) {
         if (!themeToggleBtn) return;
@@ -6118,6 +6131,7 @@ window.addEventListener('load', () => {
             document.documentElement.setAttribute('data-theme', next);
             applyThemeButtonLabel(next);
             try { localStorage.setItem('crpTheme', next); } catch (e) {}
+            redrawStageBackedCanvasesForTheme();
         };
     }
 </script>
