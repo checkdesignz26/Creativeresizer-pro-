@@ -471,6 +471,16 @@ window.addEventListener("load", () => {
         }
         .preview-item canvas:hover { box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.4); }
 
+        .inline-flow-preview-wrap { display: flex; justify-content: center; margin: 14px 0; }
+        #inlineFlowPreview {
+            width: 150px;
+            height: 150px;
+            border-radius: 20px;
+            border: 2px solid var(--accent-a);
+            background: var(--stage-bg);
+            display: block;
+        }
+
         .input-group {
             background: rgba(var(--card-rgb), 0.5);
             border-radius: 24px;
@@ -1716,7 +1726,10 @@ window.addEventListener("load", () => {
 <button data-repeat-mode="halfbrick" type="button">half-brick</button>
 <button data-repeat-mode="halfdrop" type="button">half-drop</button>
 </div>
-<div class="basic-help">Choose how your pattern flows. The “how it flows” preview above updates to show the selected repeat style.</div>
+<div class="inline-flow-preview-wrap">
+<canvas height="360" id="inlineFlowPreview" width="360"></canvas>
+</div>
+<div class="basic-help">Choose how your pattern flows. The preview above updates right here to show the selected repeat style.</div>
 </div>
 
 <div class="input-group" id="basicDesignModeGroup">
@@ -1896,6 +1909,9 @@ window.addEventListener("load", () => {
     function getStageBg() {
         return getComputedStyle(document.documentElement).getPropertyValue('--stage-bg').trim() || '#0a0a1a';
     }
+    function getTileJoinLineColor() {
+        return getComputedStyle(document.documentElement).getPropertyValue('--accent-a').trim() || '#8a7aff';
+    }
     const DPI = 300;
     const PREVIEW_RENDER_SIZE = 360;
     const THUMB_RENDER_SIZE = 440;
@@ -1954,6 +1970,7 @@ window.addEventListener("load", () => {
     const origPreviewClickable = origCanvas.closest('.preview-item');
     const tiledCanvas = document.getElementById('tiledCanvas');
     const tiledPreviewClickable = document.getElementById('tiledPreviewClickable');
+    const inlineFlowPreview = document.getElementById('inlineFlowPreview');
     const downloadBtn = document.getElementById('downloadBtn');
     const selectAllBtn = document.getElementById('selectAllBtn');
     const deselectAllBtn = document.getElementById('deselectAllBtn');
@@ -2581,9 +2598,13 @@ ctx.lineWidth = 1;
         }
         ctx.restore();
 
+        // Dashed accent-colored lines mark where tiles join - a clearly
+        // "this is a guide, not a gap in your pattern" indicator, distinct
+        // from a plain thin line that can look like a rendering seam.
         ctx.save();
-        ctx.strokeStyle = 'rgba(255,255,255,0.32)';
+        ctx.strokeStyle = getTileJoinLineColor();
         ctx.lineWidth = zoomMode ? 2 : 1;
+        ctx.setLineDash(zoomMode ? [8, 6] : [4, 3]);
         ctx.strokeRect(boxX + 0.5, boxY + 0.5, boxW, boxH);
         ctx.beginPath();
         ctx.moveTo(boxX + tileW + 0.5, boxY);
@@ -2591,6 +2612,7 @@ ctx.lineWidth = 1;
         ctx.moveTo(boxX, boxY + tileH + 0.5);
         ctx.lineTo(boxX + boxW, boxY + tileH + 0.5);
         ctx.stroke();
+        ctx.setLineDash([]);
         ctx.restore();
     }
 
@@ -2717,6 +2739,7 @@ ctx.lineWidth = 1;
 
         drawSingleTilePreview(origCanvas);
         renderFlowPreview(tiledCanvas, false);
+        if (inlineFlowPreview) renderFlowPreview(inlineFlowPreview, false);
 
         const tiledWidthInches = (tiledPatternWidth / DPI).toFixed(2);
         const tiledHeightInches = (tiledPatternHeight / DPI).toFixed(2);
