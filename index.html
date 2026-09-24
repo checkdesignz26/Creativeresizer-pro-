@@ -1517,6 +1517,34 @@ window.addEventListener("load", () => {
     margin-top: 8px;
     font-family: 'Quicksand', sans-serif;
 }
+.bg-color-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.bg-color-row #bgColorPicker {
+    width: 44px;
+    height: 40px;
+    padding: 3px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+.bg-color-row #bgColorHex {
+    flex: 1 1 auto;
+    width: auto;
+    padding: 10px 14px;
+    border-radius: 40px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: 'Quicksand', sans-serif;
+    text-transform: uppercase;
+}
 
 /* Upload diagnostics + safer preview fallbacks */
 .diagnostic-panel {
@@ -1745,6 +1773,19 @@ window.addEventListener("load", () => {
 <div class="basic-help">Repeat mode tiles your design and lets you change the pattern scale. Single artwork starts fitted at 100%, can be reduced to 50%, and fills exposed edges like wallpaper while you position it.</div>
 </div>
 
+<div class="input-group" id="backgroundFillGroup">
+<label>✧ background</label>
+<div class="basic-mode-buttons">
+<button class="active" data-bg-mode="transparent" type="button">transparent</button>
+<button data-bg-mode="solid" type="button">solid color</button>
+</div>
+<div class="bg-color-row hidden" id="bgColorRow">
+<input id="bgColorPicker" type="color" value="#ffffff"/>
+<input id="bgColorHex" maxlength="7" placeholder="#ffffff" type="text" value="#ffffff"/>
+</div>
+<div class="basic-help">Uploaded a PNG with no background? Fill the transparent areas with a solid color before tiling — a quick way to turn one transparent icon or motif into more pattern variations.</div>
+</div>
+
 <div class="input-group" id="tileConverterGroup">
 <label>✧ tile converter</label>
 <div class="basic-mode-buttons">
@@ -1928,6 +1969,8 @@ window.addEventListener("load", () => {
     let currentTileMultiplier = 2;
     let repeatMode = 'grid';
     let tileSourceMode = 'square';
+    let backgroundMode = 'transparent';
+    let backgroundColor = '#ffffff';
     let uploadedSourceCanvas = null;
     let uploadedSourceWidth = 0;
     let uploadedSourceHeight = 0;
@@ -2035,6 +2078,10 @@ window.addEventListener("load", () => {
     const designModeButtons = document.querySelectorAll('[data-design-mode]');
     const repeatModeButtons = document.querySelectorAll('[data-repeat-mode]');
     const tileSourceButtons = document.querySelectorAll('[data-tile-source]');
+    const backgroundModeButtons = document.querySelectorAll('[data-bg-mode]');
+    const bgColorRow = document.getElementById('bgColorRow');
+    const bgColorPicker = document.getElementById('bgColorPicker');
+    const bgColorHex = document.getElementById('bgColorHex');
     const basicRepeatModeGroup = document.getElementById('basicRepeatModeGroup');
 
     function syncRepeatStyleVisibility() {
@@ -4060,6 +4107,34 @@ function regenerateAllCanvases() {
         });
     }
 
+    function syncBackgroundModeButtons() {
+        backgroundModeButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.bgMode === backgroundMode);
+        });
+        if (bgColorRow) bgColorRow.classList.toggle('hidden', backgroundMode !== 'solid');
+    }
+
+    function isValidHexColor(value) {
+        return /^#[0-9a-f]{6}$/i.test(value);
+    }
+
+    function setBackgroundMode(mode) {
+        const nextMode = mode === 'solid' ? 'solid' : 'transparent';
+        if (backgroundMode === nextMode) return;
+        backgroundMode = nextMode;
+        syncBackgroundModeButtons();
+        if (originalImg && uploadedSourceCanvas) rebuildWorkingTileFromUploadedSource();
+    }
+
+    function setBackgroundColor(hex) {
+        if (!isValidHexColor(hex)) return;
+        if (backgroundColor === hex) return;
+        backgroundColor = hex;
+        if (bgColorPicker) bgColorPicker.value = hex;
+        if (bgColorHex) bgColorHex.value = hex;
+        if (backgroundMode === 'solid' && originalImg && uploadedSourceCanvas) rebuildWorkingTileFromUploadedSource();
+    }
+
     function sourceLooksTwoToOne(width, height) {
         const w = Math.max(1, Number(width) || 1);
         const h = Math.max(1, Number(height) || 1);
@@ -4117,6 +4192,18 @@ function regenerateAllCanvases() {
         return c;
     }
 
+    function applyBackgroundToCanvas(source) {
+        if (!source || backgroundMode !== 'solid') return source;
+        const out = document.createElement('canvas');
+        out.width = Math.max(1, source.width || 1);
+        out.height = Math.max(1, source.height || 1);
+        const ctx = out.getContext('2d');
+        ctx.fillStyle = backgroundColor;
+        ctx.fillRect(0, 0, out.width, out.height);
+        ctx.drawImage(source, 0, 0);
+        return out;
+    }
+
     function makeSquareWorkingTileFromSource(source, mode) {
         if (!source || !source.width || !source.height) return source;
         if (mode === 'square') return cloneCanvas(source);
@@ -4159,7 +4246,7 @@ function regenerateAllCanvases() {
         if (!uploadedSourceCanvas) return;
         try {
             const oldOriginal = originalImg;
-            const working = makeSquareWorkingTileFromSource(uploadedSourceCanvas, tileSourceMode);
+            const working = makeSquareWorkingTileFromSource(applyBackgroundToCanvas(uploadedSourceCanvas), tileSourceMode);
             originalImg = working;
             patternWidth = Math.round(working.width || 0);
             patternHeight = Math.round(working.height || 0);
@@ -4246,7 +4333,7 @@ function regenerateAllCanvases() {
                 addDebugStep('Auto converter selected: half-brick source');
             }
 
-            originalImg = makeSquareWorkingTileFromSource(uploadedSourceCanvas, tileSourceMode);
+            originalImg = makeSquareWorkingTileFromSource(applyBackgroundToCanvas(uploadedSourceCanvas), tileSourceMode);
             patternWidth = Math.round(originalImg.width || 0);
             patternHeight = Math.round(originalImg.height || 0);
             preparedImageInfo = prep;
@@ -4582,6 +4669,23 @@ function regenerateAllCanvases() {
     designModeButtons.forEach(btn => {
         btn.onclick = () => setDesignMode(btn.dataset.designMode || 'repeat');
     });
+    backgroundModeButtons.forEach(btn => {
+        btn.onclick = () => setBackgroundMode(btn.dataset.bgMode || 'transparent');
+    });
+    if (bgColorPicker) {
+        bgColorPicker.oninput = () => setBackgroundColor(bgColorPicker.value);
+    }
+    if (bgColorHex) {
+        bgColorHex.onchange = () => {
+            let value = bgColorHex.value.trim();
+            if (value && value[0] !== '#') value = '#' + value;
+            if (isValidHexColor(value)) {
+                setBackgroundColor(value);
+            } else {
+                bgColorHex.value = backgroundColor;
+            }
+        };
+    }
 
     document.querySelectorAll('.tile-option[data-tile]').forEach(btn => {
         btn.onclick = () => {
@@ -4595,6 +4699,7 @@ function regenerateAllCanvases() {
 
     syncRepeatModeButtons();
     syncDesignModeButtons();
+    syncBackgroundModeButtons();
 
     addCustomBtn.onclick = () => {
         let wVal = parseFloat(customW.value);
