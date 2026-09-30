@@ -3139,6 +3139,12 @@ function drawPattern(ctx, targetW, targetH, scale, useTiled, product = null, pos
         const isApplePencilRender = !!(product && product.name === "Apple Pencil");
         let cachedSharpTile = null;
         let cachedSharpTileKey = "";
+        // Apple Pencil rendering builds a scratch canvas (cachedSharpTile) via
+        // createSharpScaledTileForRender(). drawPattern() is called very often (every
+        // product thumbnail, zoom, and export), so that scratch canvas must be released
+        // on every exit path here rather than left for GC, which iOS Safari can be slow to
+        // actually reclaim. Ported from Seamless Studio (c174409).
+        try {
         const getDrawSource = (tileW, tileH) => {
             if (!isApplePencilRender) return originalImg;
             const key = `${Math.ceil(tileW)}x${Math.ceil(tileH)}`;
@@ -3244,6 +3250,11 @@ function drawPattern(ctx, targetW, targetH, scale, useTiled, product = null, pos
                     Math.ceil(tileW),
                     Math.ceil(tileH)
                 );
+            }
+        }
+        } finally {
+            if (cachedSharpTile && cachedSharpTile !== originalImg) {
+                releaseCanvasMemory(cachedSharpTile);
             }
         }
     }
@@ -5287,6 +5298,7 @@ window.addEventListener('load', () => {
         ctx.globalAlpha = alpha;
         ctx.drawImage(layer, 0, 0);
         ctx.restore();
+        releaseCanvasMemory(layer);
     }
 
 
@@ -5441,6 +5453,7 @@ window.addEventListener('load', () => {
                 lctx.drawImage(A.tumbler30Mask, 0, 0, 2048, 2048);
 
                 ctx.drawImage(layer, 0, 0);
+                releaseCanvasMemory(layer);
             }
 
             // 3. Bring back blank tumbler body shading so pattern feels printed, not stickered.
@@ -5459,6 +5472,7 @@ window.addEventListener('load', () => {
             ctx.globalAlpha = 0.24;
             ctx.drawImage(bodyShade, 0, 0);
             ctx.restore();
+            releaseCanvasMemory(bodyShade);
 
             // 4. Overlay realism layer from Procreate.
             if (imageReady(A.tumbler30Overlay)) {
@@ -5566,12 +5580,15 @@ window.addEventListener('load', () => {
             const b = getMaskBounds(maskImg, canvas.width, canvas.height);
             lctx.drawImage(designCanvas, b.x, b.y, b.w, b.h);
             lctx.globalCompositeOperation = 'destination-in';
-            lctx.drawImage(makeNotebookLumMask(maskImg), 0, 0);
+            const lumMask = makeNotebookLumMask(maskImg);
+            lctx.drawImage(lumMask, 0, 0);
+            releaseCanvasMemory(lumMask);
             ctx.save();
             ctx.globalCompositeOperation = 'multiply';
             ctx.globalAlpha = 0.96;
             ctx.drawImage(layer, 0, 0);
             ctx.restore();
+            releaseCanvasMemory(layer);
         }
 
         if (drawLeftVisibleCover) drawProductCanvasIntoMask(A.notebookFrontMask);
@@ -5613,6 +5630,7 @@ window.addEventListener('load', () => {
 
         const bounds = { x:minX, y:minY, w:Math.max(1, maxX-minX), h:Math.max(1, maxY-minY) };
         window.__mockupMaskBoundsCache[key] = bounds;
+        releaseCanvasMemory(tmp);
         return bounds;
     }
 
@@ -5710,6 +5728,7 @@ window.addEventListener('load', () => {
         ctx.globalAlpha = alpha;
         ctx.drawImage(layer, 0, 0);
         ctx.restore();
+        releaseCanvasMemory(layer);
         return true;
     }
 
@@ -5744,6 +5763,7 @@ window.addEventListener('load', () => {
         }
       }
     }catch(e){}
+    releaseCanvasMemory(c);
     if(!found) return {x:w*.3,y:h*.3,w:w*.36,h:h*.55};
     return {x:minX,y:minY,w:Math.max(1,maxX-minX),h:Math.max(1,maxY-minY)};
   }
@@ -5878,13 +5898,16 @@ window.addEventListener('load', () => {
     const cardQuad = insetQuadTowardCenter(rawQuad, 0.026);
     drawImageToQuadPerspective(lctx, designCanvas, cardQuad, 40);
     lctx.globalCompositeOperation = 'destination-in';
-    lctx.drawImage(makeLumMask(mask,2048,2048),0,0);
+    const lumMask = makeLumMask(mask,2048,2048);
+    lctx.drawImage(lumMask,0,0);
+    releaseCanvasMemory(lumMask);
 
     ctx.save();
     ctx.globalCompositeOperation = 'multiply';
     ctx.globalAlpha = 0.98;
     ctx.drawImage(layer,0,0);
     ctx.restore();
+    releaseCanvasMemory(layer);
     // bring back the paper/photo texture softly
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
