@@ -3869,6 +3869,21 @@ function regenerateAllCanvases() {
         return isIOS && isSafari;
     }
 
+    // Read-only introspection for automated QA (compatibility-consolidation regression
+    // suite) — no behaviour depends on this; it only reads existing closure state.
+    window.__crGetState = () => ({
+        hasOriginalImg: !!originalImg,
+        patternWidth,
+        patternHeight,
+        uploadedSourceCanvasWidth: uploadedSourceCanvas ? uploadedSourceCanvas.width : 0,
+        uploadedSourceCanvasHeight: uploadedSourceCanvas ? uploadedSourceCanvas.height : 0,
+        productCanvasCount: productCanvases.length,
+        productCanvasesBuilt: productCanvases.filter(Boolean).length,
+        repeatMode: typeof repeatMode !== 'undefined' ? repeatMode : null,
+        designMode: typeof designMode !== 'undefined' ? designMode : null,
+        isAppleMobileSafari: isAppleMobileSafari(),
+    });
+
     function updateDownloadUi() {
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         if (isIOS) {
@@ -4067,7 +4082,15 @@ function regenerateAllCanvases() {
             const outCanvas = document.createElement('canvas');
             outCanvas.width = outW;
             outCanvas.height = outH;
-            const outCtx = outCanvas.getContext('2d', { alpha: true, willReadFrequently: true });
+            // No willReadFrequently: this canvas becomes the long-lived decoded source
+            // (uploadedSourceCanvas/originalImg) and is drawImage()'d from for the whole
+            // session across every product preview, zoom, and export tile — it is written
+            // once and essentially never read back. That hint forces a CPU-backed (not GPU)
+            // canvas, a standing memory tax worth avoiding for a canvas that can be several
+            // megapixels and lives for the entire session. Ported from Seamless Studio
+            // (d2be5c4), which removed this same hint from the same kind of canvas after it
+            // was found to contribute to iPad Safari memory-pressure crashes.
+            const outCtx = outCanvas.getContext('2d', { alpha: true });
             if (!outCtx) throw new Error('Your browser could not create a canvas preview.');
             outCtx.imageSmoothingEnabled = true;
             outCtx.imageSmoothingQuality = 'high';
@@ -4299,7 +4322,17 @@ function regenerateAllCanvases() {
                 uploadedOriginalPreviewWidth = 0;
                 uploadedOriginalPreviewHeight = 0;
             }
-            const prep = await decodeImageToCanvas(file, { maxDimension: 7200, maxPixels: 24000000 });
+            // iPad/iPhone Safari has a much smaller effective per-tab memory budget than
+            // desktop browsers, and decoding a large pattern at full resolution — even
+            // briefly, before any downscale kicks in — can exceed it and get the tab
+            // killed/reloaded by the OS. Cap harder on that browser only; everywhere else
+            // keeps the existing working resolution. Ported from Seamless Studio (a626e85),
+            // which fixed an identical iPad OOM crash there with these exact cap values,
+            // verified against a real 3600x3600 pattern under a spoofed iPad Safari UA.
+            const decodeLimits = isAppleMobileSafari()
+                ? { maxDimension: 2200, maxPixels: 4200000 }
+                : { maxDimension: 7200, maxPixels: 24000000 };
+            const prep = await decodeImageToCanvas(file, decodeLimits);
             addDebugStep(`Image decoded: ${prep.originalWidth} × ${prep.originalHeight}px`, {
                 sourceWidth: prep.originalWidth,
                 sourceHeight: prep.originalHeight,
