@@ -3048,6 +3048,57 @@ function getWrapRepeatMetrics(product, requestedScale) {
         };
     }
 
+    // The flat product canvas (ensureProductCanvas/drawPattern) is the one true
+    // source of pattern scale — it draws tiles sized from getWrapRepeatMetrics()
+    // at the product's real physical pixel size (product.w/h, true DPI). A
+    // mock-up photo instead lives on a fixed 2048x2048 canvas, with the
+    // product's printable area occupying some sub-region of it (the mask's
+    // opaque bounding box). Two different situations need two different
+    // conversions from that region into a matching tile size:
+
+    // (1) The whole product is visible in the mask region, just at a
+    // different pixel scale (and sometimes photographed at an angle, so its
+    // axis-aligned bounding box doesn't preserve the product's own
+    // width:height ratio — e.g. a flat bookmark laid on a diagonal). Every
+    // repeat the flat view draws is still present somewhere in that region,
+    // so matching the flat view's own repeat count across the region's
+    // dominant axis reproduces "the same visual repeat scale" exactly.
+    function getMockupTileSizeMatchingRepeats(product, index, boundsW, boundsH) {
+        const metrics = getWrapRepeatMetrics(product, getRenderScale(product, index));
+        const sw = patternNativeWidth || 1;
+        const sh = patternNativeHeight || 1;
+        let tileW, tileH;
+        if (metrics.seamAxis === 'horizontal') {
+            const repeats = Math.max(1, metrics.repeatsY);
+            tileH = Math.max(1, boundsH / repeats);
+            tileW = tileH * (sw / sh);
+        } else {
+            const repeats = Math.max(1, metrics.repeatsX);
+            tileW = Math.max(1, boundsW / repeats);
+            tileH = tileW * (sh / sw);
+        }
+        return { tileW, tileH };
+    }
+
+    // (2) Only part of the product's surface faces the camera (a narrow
+    // slice of a cylindrical wrap's circumference) — the mask region is
+    // narrower than the product's real width, but its height still reads
+    // directly off the real product height. Forcing the flat view's full
+    // repeat count into that narrower slice would cram far more repeats into
+    // it than the flat view actually shows per unit of real size; scaling
+    // the flat tile's real physical size by the region's height ratio alone
+    // (matching drawHorizontalWrapClipped's own height-fit for the 20oz
+    // tumbler, which already renders correctly) keeps the same physical
+    // tile size and lets however many of it fit in the narrower slice.
+    function getMockupTileSizeByHeightScale(product, index, boundsH) {
+        const metrics = getWrapRepeatMetrics(product, getRenderScale(product, index));
+        const scale = boundsH / Math.max(1, product.h);
+        return {
+            tileW: Math.max(1, metrics.tileW * scale),
+            tileH: Math.max(1, metrics.tileH * scale)
+        };
+    }
+
 function createSharpScaledTileForRender(tileW, tileH) {
         if (!originalImg || !patternWidth || !patternHeight) return originalImg;
         const finalW = Math.max(1, Math.ceil(tileW));
@@ -5332,12 +5383,18 @@ window.addEventListener('load', () => {
 
         const sw = source.width || source.naturalWidth || 1;
         const sh = source.height || source.naturalHeight || 1;
+        const bounds = getMaskBounds(mask, w, h);
 
-        // Cover full height. Zoom is a gentle visual fitting value only.
-        const dh = h * Math.max(1, Number(zoom) || 1);
+        // Fit to the mask's actual printable region height, not the full
+        // mock-up canvas — the printable area is usually smaller than the
+        // whole photo, and fitting to the full canvas stretched the
+        // (already fully-tiled, true-scale) source to a different apparent
+        // pattern scale than the flat product view. Zoom stays a gentle
+        // fitting nudge on top of that real match, same as before.
+        const dh = bounds.h * Math.max(1, Number(zoom) || 1);
         const dw = sw * (dh / sh);
 
-        const y = (h - dh) / 2 + (Number(offsetY) || 0);
+        const y = bounds.y + (bounds.h - dh) / 2 + (Number(offsetY) || 0);
         const ox = ((Number(offsetX) || 0) % dw + dw) % dw;
 
         lctx.imageSmoothingEnabled = true;
@@ -5446,12 +5503,15 @@ window.addEventListener('load', () => {
         releaseCanvasMemory(tasselLayer);
 
         const pos = getPositionState(idx);
-        const repeatCount = getCurrentWrapRepeatCount(products[idx], idx);
+        const bounds = getMaskBounds(A.bookmarkPatternMask, 2048, 2048);
+        const geom = getMockupTileSizeMatchingRepeats(products[idx], idx, bounds.w, bounds.h);
+        const offsetXPx = (pos.x / 100) * geom.tileW;
+        const offsetYPx = (pos.y / 100) * geom.tileH;
 
-        // overlay (not multiply) so the pattern keeps real shading from the
-        // bookmark photo instead of looking pasted on flat
-        fillMaskWithOriginalPattern(ctx, A.bookmarkPatternMask, 2048, 2048, pos.x * 18, pos.y * 18, repeatCount, 'overlay', 0.90);
-        fillMaskWithOriginalPattern(ctx, A.bookmarkPatternMask, 2048, 2048, pos.x * 18, pos.y * 18, repeatCount, 'source-over', 0.14);
+        // multiply keeps the pattern's real colour/detail visible while still
+        // letting the bookmark photo's shading show through underneath
+        fillMaskWithOriginalPattern(ctx, A.bookmarkPatternMask, 2048, 2048, offsetXPx, offsetYPx, null, 'multiply', 0.90, 0, geom.tileW);
+        fillMaskWithOriginalPattern(ctx, A.bookmarkPatternMask, 2048, 2048, offsetXPx, offsetYPx, null, 'source-over', 0.14, 0, geom.tileW);
 
         return true;
     }
@@ -5518,15 +5578,18 @@ window.addEventListener('load', () => {
             // 2. Pattern clipped into the tumbler mask, with tiny realism blur.
             if (originalImg) {
                 const pos = getPositionState(idx);
-                const repeatCount = Math.max(2.2, getCurrentWrapRepeatCount(prod, idx) || 2.8);
                 const patternSource = originalImg;
                 const sw = patternSource.naturalWidth || patternSource.width || 1;
                 const sh = patternSource.naturalHeight || patternSource.height || 1;
                 const bounds = getMaskBounds(A.tumbler30Mask, 2048, 2048);
-                const tileW = Math.max(30, bounds.w / repeatCount);
+                // Only a slice of the tumbler's circumference faces the camera
+                // here (same situation as the 20oz tumbler) — match physical
+                // tile size via the region's height ratio, same as that one.
+                const geom = getMockupTileSizeByHeightScale(prod, idx, bounds.h);
+                const tileW = geom.tileW;
                 const tileH = tileW * (sh / sw);
-                const ox = ((pos.x * 18) % tileW + tileW) % tileW;
-                const oy = ((pos.y * 14) % tileH + tileH) % tileH;
+                const ox = (((pos.x / 100) * geom.tileW) % tileW + tileW) % tileW;
+                const oy = (((pos.y / 100) * geom.tileH) % tileH + tileH) % tileH;
 
                 const layer = document.createElement('canvas');
                 layer.width = 2048;
@@ -5553,7 +5616,11 @@ window.addEventListener('load', () => {
                 lctx.globalCompositeOperation = 'destination-in';
                 lctx.drawImage(A.tumbler30Mask, 0, 0, 2048, 2048);
 
+                ctx.save();
+                ctx.globalCompositeOperation = 'multiply';
+                ctx.globalAlpha = 0.96;
                 ctx.drawImage(layer, 0, 0);
+                ctx.restore();
                 releaseCanvasMemory(layer);
             }
 
@@ -5613,7 +5680,18 @@ window.addEventListener('load', () => {
         ctx.drawImage(A.tumblerBg, 0, 0, 2048, 2048);
 
         const pos = getPositionState(idx);
-        drawHorizontalWrapClipped(ctx, designCanvas, A.tumblerMask, 2048, 2048, pos.x * 18, pos.y * 14, 1.04, 'multiply', 0.94);
+        // drawHorizontalWrapClipped fits the pre-tiled source to the mask's
+        // printable region HEIGHT (preserving the source's own aspect), so
+        // every embedded tile scales by that same height ratio — match the
+        // offset to that, not an arbitrary pixel multiplier, so position
+        // corresponds 1:1 with the flat view's own tile-relative offset.
+        const tumblerBounds = getMaskBounds(A.tumblerMask, 2048, 2048);
+        const tumblerZoom = 1.04;
+        const tumblerRegionScale = (tumblerBounds.h / Math.max(1, prod.h)) * tumblerZoom;
+        const tumblerMetrics = getWrapRepeatMetrics(prod, getRenderScale(prod, idx));
+        const tumblerOffsetX = (pos.x / 100) * tumblerMetrics.tileW * tumblerRegionScale;
+        const tumblerOffsetY = (pos.y / 100) * tumblerMetrics.tileH * tumblerRegionScale;
+        drawHorizontalWrapClipped(ctx, designCanvas, A.tumblerMask, 2048, 2048, tumblerOffsetX, tumblerOffsetY, tumblerZoom, 'multiply', 0.94);
 
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
@@ -5781,7 +5859,7 @@ window.addEventListener('load', () => {
         }
     }
 
-    function fillMaskWithOriginalPattern(ctx, mask, w, h, offsetX = 0, offsetY = 0, repeatCount = 2, blend = 'multiply', alpha = 0.96, sharpenAmount = 0) {
+    function fillMaskWithOriginalPattern(ctx, mask, w, h, offsetX = 0, offsetY = 0, repeatCount = 2, blend = 'multiply', alpha = 0.96, sharpenAmount = 0, explicitTileW = null) {
         const patternSource = (typeof originalImg !== 'undefined' && originalImg) ? originalImg : null;
         if (!patternSource || !mask) return false;
 
@@ -5794,11 +5872,23 @@ window.addEventListener('load', () => {
         const sh = patternSource.naturalHeight || patternSource.height || 1;
         const bounds = getMaskBounds(mask, w, h);
 
-        // Match the visible product surface:
-        // 2 repeats means ~2 tiles across the mask width, not tiny wallpaper.
-        const repeats = Math.max(1, Math.min(8, Math.round(Number(repeatCount) || 1)));
-        const tileW = Math.max(30, bounds.w / repeats);
-        const tileH = tileW * (sh / sw);
+        // explicitTileW (mock-up-canvas pixels, from getMockupTileSizeMatchingRepeats/
+        // getMockupTileSizeByHeightScale) takes priority when given — it's the
+        // flat view's real tile size converted into this canvas's pixel
+        // space, so the two views match exactly. The old repeatCount-into-
+        // bounds.w fallback stays for call
+        // sites that don't (yet) pass it, unchanged from before.
+        let tileW, tileH;
+        if (explicitTileW) {
+            tileW = Math.max(1, explicitTileW);
+            tileH = tileW * (sh / sw);
+        } else {
+            // Match the visible product surface:
+            // 2 repeats means ~2 tiles across the mask width, not tiny wallpaper.
+            const repeats = Math.max(1, Math.min(8, Math.round(Number(repeatCount) || 1)));
+            tileW = Math.max(30, bounds.w / repeats);
+            tileH = tileW * (sh / sw);
+        }
 
         const ox = ((Number(offsetX) || 0) % tileW + tileW) % tileW;
         const oy = ((Number(offsetY) || 0) % tileH + tileH) % tileH;
