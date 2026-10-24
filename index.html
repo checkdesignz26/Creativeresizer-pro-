@@ -121,6 +121,7 @@ window.addEventListener("load", () => {
     --accent-a: #8a7aff;
     --accent-b: #6b5fd3;
     --accent-rgb: 138, 122, 255;
+    --chrome-rgb: 138, 122, 255;
     --accent-light: #e0d9ff;
     --accent-soft: #b8aaff;
     --accent-soft2: #b8b1d9;
@@ -140,16 +141,17 @@ window.addEventListener("load", () => {
 }
 
 [data-theme="light"] {
-    --stage-bg: #e4e4e1;
-    --stage-rgb: 228, 228, 225;
-    --bg-page-start: #f8f8f6;
-    --bg-page-end: #f1f1ee;
+    --stage-bg: #e6e2da;
+    --stage-rgb: 230, 226, 218;
+    --bg-page-start: #faf8f5;
+    --bg-page-end: #f3f0ea;
     --panel-rgb: 255, 255, 255;
     --card-rgb: 255, 255, 255;
     --input-bg: #ffffff;
-    --deep-rgb: 232, 232, 229;
-    --surface-muted: #eef0ef;
-    --border-color: #dcdfe1;
+    --deep-rgb: 237, 233, 226;
+    --surface-muted: #f1eee8;
+    --border-color: #e1dcd3;
+    --chrome-rgb: 196, 188, 176;
     --accent-a: #4a9b94;
     --accent-b: #3a7d77;
     --accent-rgb: 74, 155, 148;
@@ -167,7 +169,7 @@ window.addEventListener("load", () => {
     --success: #2f9e6e;
     --blue-accent: #3a7d77;
     --blue-accent-rgb: 58, 125, 119;
-    --panel-dark: #eef1f0;
+    --panel-dark: #f1eee8;
     --dragover-rgb: 214, 232, 229;
 }
 
@@ -207,7 +209,7 @@ window.addEventListener("load", () => {
 
     color: white;
 
-    box-shadow: 0 4px 15px rgba(var(--accent-rgb),0.4);
+    box-shadow: 0 4px 15px rgba(var(--chrome-rgb),0.4);
 
 }
 
@@ -271,7 +273,7 @@ window.addEventListener("load", () => {
             height: 85vh;
             overflow-y: auto;
             overflow-x: hidden;
-            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            border: 1px solid rgba(var(--chrome-rgb), 0.3);
         }
         .content {
             background: rgba(var(--panel-rgb), 0.85);
@@ -283,7 +285,7 @@ window.addEventListener("load", () => {
             min-width: 0;
             height: 85vh;
             overflow: hidden;
-            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            border: 1px solid rgba(var(--chrome-rgb), 0.3);
             position: relative;
             display: flex;
             flex-direction: column;
@@ -469,7 +471,7 @@ window.addEventListener("load", () => {
             transition: all 0.3s;
             display: block;
         }
-        .preview-item canvas:hover { box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.4); }
+        .preview-item canvas:hover { box-shadow: 0 0 20px rgba(var(--chrome-rgb), 0.4); }
 
         .input-group {
             background: rgba(var(--card-rgb), 0.5);
@@ -499,7 +501,7 @@ window.addEventListener("load", () => {
             display: flex;
             justify-content: space-between;
             padding: 10px 0;
-            border-bottom: 1px solid rgba(var(--accent-rgb), 0.2);
+            border-bottom: 1px solid rgba(var(--chrome-rgb), 0.2);
             font-family: 'Quicksand', sans-serif;
             font-size: 13px;
         }
@@ -518,7 +520,7 @@ window.addEventListener("load", () => {
             transition: all 0.3s;
             font-family: 'Quicksand', sans-serif;
         }
-        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(107, 95, 211, 0.4); }
+        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(var(--chrome-rgb), 0.4); }
         .download-btn {
             background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
             width: 100%;
@@ -564,7 +566,7 @@ window.addEventListener("load", () => {
             transition: all 0.3s;
         }
         .product-card.selected { border-color: var(--accent-a); background: rgba(var(--dragover-rgb), 0.92); box-shadow: 0 0 0 1px rgba(var(--accent-rgb),0.22), 0 10px 24px rgba(0,0,0,0.18); }
-        .product-card:hover { transform: translateY(-2px); border-color: rgba(var(--accent-rgb),0.5); }
+        .product-card:hover { transform: translateY(-2px); border-color: rgba(var(--chrome-rgb),0.5); }
         .product-card img {
             width: 120px;
             height: 120px;
@@ -689,7 +691,7 @@ window.addEventListener("load", () => {
             margin: 14px auto 0;
             width: min(560px, 100%);
             background: rgba(var(--deep-rgb), 0.45);
-            border: 1px solid rgba(var(--accent-rgb), 0.22);
+            border: 1px solid rgba(var(--chrome-rgb), 0.22);
             border-radius: 22px;
             padding: 14px;
             text-align: left;
@@ -873,8 +875,8 @@ window.addEventListener("load", () => {
             overflow: hidden;
             border-radius: 24px;
             padding: 22px;
-            background: linear-gradient(135deg, rgba(var(--fg-rgb),0.03), rgba(var(--accent-rgb),0.05));
-            border: 1px solid rgba(var(--accent-rgb), 0.16);
+            background: linear-gradient(135deg, rgba(var(--fg-rgb),0.03), rgba(var(--chrome-rgb),0.05));
+            border: 1px solid rgba(var(--chrome-rgb), 0.16);
             box-shadow: inset 0 1px 0 rgba(var(--fg-rgb),0.04);
         }
         .zoom-preview-pane::after {
@@ -927,7 +929,7 @@ window.addEventListener("load", () => {
             width: 8px;
         }
         .zoom-controls::-webkit-scrollbar-thumb {
-            background: rgba(var(--accent-rgb), 0.35);
+            background: rgba(var(--chrome-rgb), 0.35);
             border-radius: 999px;
         }
         .zoom-footer {
@@ -983,7 +985,7 @@ window.addEventListener("load", () => {
             text-align: center;
             margin-top: 8px;
             padding: 8px;
-            background: rgba(var(--accent-rgb), 0.2);
+            background: rgba(var(--chrome-rgb), 0.2);
             border-radius: 40px;
             font-family: monospace;
         }
@@ -1091,7 +1093,8 @@ window.addEventListener("load", () => {
     z-index: 9999;
     color: white;
     text-decoration: none;
-    padding: 12px 20px;
+    padding: 8px 14px;
+    font-size: 13px;
     border-radius: 40px;
     display: inline-block;
     border: none;
@@ -1110,7 +1113,7 @@ window.addEventListener("load", () => {
             -webkit-backdrop-filter: blur(10px);
             padding: 12px 0 14px;
             margin: 0 0 14px 0;
-            border-bottom: 1px solid rgba(var(--accent-rgb), 0.18);
+            border-bottom: 1px solid rgba(var(--chrome-rgb), 0.18);
         }
         .products-topbar-main {
             display:flex;
@@ -1134,8 +1137,8 @@ window.addEventListener("load", () => {
             width:100%;
         }
         .topbar-utility-btn {
-            background: rgba(var(--accent-rgb), 0.14);
-            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            background: rgba(var(--chrome-rgb), 0.14);
+            border: 1px solid rgba(var(--chrome-rgb), 0.3);
             color: var(--text-primary);
             padding: 10px 14px;
         }
@@ -1155,8 +1158,8 @@ window.addEventListener("load", () => {
             padding-right:0;
         }
         .workspace-btn {
-            background: rgba(var(--accent-rgb),0.14);
-            border: 1px dashed rgba(var(--accent-rgb),0.42);
+            background: rgba(var(--chrome-rgb),0.14);
+            border: 1px dashed rgba(var(--chrome-rgb),0.42);
             color: var(--accent-pale);
             padding: 9px 14px;
         }
@@ -1252,7 +1255,7 @@ window.addEventListener("load", () => {
             width: 8px;
         }
         .content-scroll::-webkit-scrollbar-thumb {
-            background: rgba(var(--accent-rgb), 0.35);
+            background: rgba(var(--chrome-rgb), 0.35);
             border-radius: 999px;
         }
         .products-topbar {
@@ -1270,8 +1273,8 @@ window.addEventListener("load", () => {
             margin-top: 8px;
         }
         .mini-pill {
-            background: rgba(var(--accent-rgb),0.20);
-            border: 1px solid rgba(var(--accent-rgb),0.42);
+            background: rgba(var(--chrome-rgb),0.20);
+            border: 1px solid rgba(var(--chrome-rgb),0.42);
             padding: 4px 8px;
             border-radius: 999px;
             font-size: 12px;
@@ -1382,8 +1385,8 @@ window.addEventListener("load", () => {
             min-width: 180px;
             padding: 6px 10px;
             border-radius: 16px;
-            background: rgba(var(--accent-rgb), 0.08);
-            border: 1px dashed rgba(var(--accent-rgb), 0.24);
+            background: rgba(var(--chrome-rgb), 0.08);
+            border: 1px dashed rgba(var(--chrome-rgb), 0.24);
             text-align: right;
             font-family: 'Caveat', cursive;
             font-size: 22px;
@@ -1502,7 +1505,7 @@ window.addEventListener("load", () => {
     padding: 9px 10px;
     font-size: 12px;
     background: rgba(var(--fg-rgb),0.04);
-    border: 1px solid rgba(var(--accent-rgb),0.34);
+    border: 1px solid rgba(var(--chrome-rgb),0.34);
     color: var(--accent-light);
     box-shadow: none;
 }
@@ -1549,7 +1552,7 @@ window.addEventListener("load", () => {
 /* Upload diagnostics + safer preview fallbacks */
 .diagnostic-panel {
     background: rgba(var(--deep-rgb), 0.38);
-    border: 1px solid rgba(var(--accent-rgb), 0.32);
+    border: 1px solid rgba(var(--chrome-rgb), 0.32);
     border-radius: 22px;
     padding: 12px;
     margin: 0 0 16px;
@@ -1616,15 +1619,16 @@ window.addEventListener("load", () => {
 .diagnostic-btn {
     padding: 8px 12px;
     font-size: 11px;
-    background: rgba(var(--accent-rgb),0.18);
-    border: 1px solid rgba(var(--accent-rgb),0.34);
+    background: rgba(var(--chrome-rgb),0.18);
+    border: 1px solid rgba(var(--chrome-rgb),0.34);
+    color: var(--text-primary);
 }
 .thumb-fallback {
     width: 120px;
     height: 120px;
     border-radius: 12px;
     background: var(--stage-bg);
-    border: 1px dashed rgba(var(--accent-rgb),0.45);
+    border: 1px dashed rgba(var(--chrome-rgb),0.45);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1683,6 +1687,58 @@ window.addEventListener("load", () => {
     font-weight:700;
 }
 .mockup-download-wrap.hidden { display:none !important; }
+
+/* Light theme: neutral refinements. Teal stays reserved for primary
+   actions and selected options; everything else (headings, badges,
+   secondary chrome) is scoped here rather than changed at the shared
+   variable level, so dark theme is untouched. */
+[data-theme="light"] h1 {
+    background: none;
+    -webkit-text-fill-color: var(--text-primary);
+    color: var(--text-primary);
+}
+[data-theme="light"] .wrap-badge {
+    background: rgba(var(--fg-rgb), 0.72);
+}
+[data-theme="light"] .selected-mini-list {
+    color: var(--text-primary);
+}
+[data-theme="light"] .feedback-btn {
+    background: rgba(var(--panel-rgb), 0.95);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+[data-theme="light"] .preview-only-close-btn {
+    background: rgba(var(--panel-rgb), 0.95);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+[data-theme="light"] .toast {
+    border-color: var(--border-color);
+}
+[data-theme="light"] .pattern-library-tile:hover img {
+    border-color: var(--border-color);
+}
+[data-theme="light"] .upload-box {
+    border-color: var(--border-color);
+}
+[data-theme="light"] .upload-box:hover {
+    background: rgba(var(--card-rgb), 0.85);
+}
+[data-theme="light"] .upload-box.drag-over {
+    border-color: var(--accent-a);
+}
+[data-theme="light"] .preview-item canvas {
+    border-color: var(--border-color);
+}
+[data-theme="light"] .batch-add-btn {
+    border-color: var(--border-color);
+}
+[data-theme="light"] .modal-content {
+    border-color: var(--border-color);
+}
 </style>
 </style>
 
@@ -1835,8 +1891,7 @@ window.addEventListener("load", () => {
 </div>
 </div>
 <div class="products-topbar-workspace">
-<button class="workspace-btn" id="showPopularBtn" type="button">show Etsy favourites</button>
-<button class="workspace-btn" id="hidePopularBtn" type="button">hide Etsy favourites</button>
+<button class="workspace-btn" id="togglePopularBtn" type="button">hide Etsy favourites</button>
 </div>
 </div>
 <div class="content-scroll">
@@ -2069,8 +2124,7 @@ window.addEventListener("load", () => {
     const sizeText = document.getElementById('sizeText');
     const tiledSizeText = document.getElementById('tiledSizeText');
     const selectedCountSpan = document.getElementById('selectedCount');
-    const hidePopularBtn = document.getElementById('hidePopularBtn');
-    const showPopularBtn = document.getElementById('showPopularBtn');
+    const togglePopularBtn = document.getElementById('togglePopularBtn');
     const downloadHint = document.getElementById('downloadHint');
     const toast = document.getElementById('toast');
     const diagnosticPanel = document.getElementById('diagnosticPanel');
@@ -2390,8 +2444,7 @@ window.addEventListener("load", () => {
 
     function syncWorkspaceButtons() {
         if (popularProductsSection) popularProductsSection.classList.toggle('hidden', !showPopularProducts);
-        if (hidePopularBtn) hidePopularBtn.disabled = !showPopularProducts;
-        if (showPopularBtn) showPopularBtn.disabled = showPopularProducts;
+        if (togglePopularBtn) togglePopularBtn.textContent = showPopularProducts ? 'hide Etsy favourites' : 'show Etsy favourites';
     }
 
     function mountUnitToggleIntoCustomPanel() {
@@ -4777,8 +4830,11 @@ function regenerateAllCanvases() {
     zoomModal.onclick = (e) => { if (e.target === zoomModal) { closeZoomModal(); } };
     selectAllBtn.onclick = () => { getVisibleProductIndices().forEach(i => selected[i] = true); if (originalImg) renderProductGrid(); else updateCounts(); };
     deselectAllBtn.onclick = () => { getVisibleProductIndices().forEach(i => selected[i] = false); if (originalImg) renderProductGrid(); else updateCounts(); };
-    if (hidePopularBtn) hidePopularBtn.onclick = () => { showPopularProducts = false; if (originalImg) renderProductGrid(); else syncWorkspaceButtons(); updateCounts(); };
-    if (showPopularBtn) showPopularBtn.onclick = () => { showPopularProducts = true; if (originalImg) renderProductGrid(); else syncWorkspaceButtons(); updateCounts(); };
+    if (togglePopularBtn) togglePopularBtn.onclick = () => {
+        showPopularProducts = !showPopularProducts;
+        if (originalImg) renderProductGrid(); else syncWorkspaceButtons();
+        updateCounts();
+    };
 
     function syncRepeatModeButtons() {
         repeatModeButtons.forEach(btn => {
