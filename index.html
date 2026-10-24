@@ -2050,6 +2050,9 @@ window.addEventListener("load", () => {
     let products = [];
     let selected = [];
     let scales = [];
+    // Tracks which products' repeat scale the user has deliberately set, so
+    // autoFitWrapProducts() never silently overwrites a chosen scale.
+    let scaleCustomized = [];
     let artworkScales = [];
     let positions = [];
     let productCanvases = [];
@@ -2371,6 +2374,7 @@ window.addEventListener("load", () => {
         }
         selected = new Array(products.length).fill(false);
         scales = new Array(products.length).fill(1.0);
+        scaleCustomized = new Array(products.length).fill(false);
         artworkScales = new Array(products.length).fill(1.0);
         positions = new Array(products.length).fill(null).map(() => ({ x: 0, y: 0 }));
         products.forEach((p) => {
@@ -2384,9 +2388,9 @@ window.addEventListener("load", () => {
 
     function getAutoCustomWrapRepeats(productW, productH) {
         const aspect = Math.max(productW, productH) / Math.max(1, Math.min(productW, productH));
-        if (aspect >= 5) return 3.0;
-        if (aspect >= 3) return 2.5;
-        return 2.0;
+        if (aspect >= 5) return 4.0;
+        if (aspect >= 3) return 3.5;
+        return 3.0;
     }
 
     function getAutoSeamlessScaleForCustom(productW, productH) {
@@ -2947,7 +2951,7 @@ ctx.lineWidth = 1;
     function autoFitWrapProducts() {
         if (!originalImg || !tiledImg) return;
         for (let i = 0; i < products.length; i++) {
-            if (products[i].type === "wrap") {
+            if (products[i].type === "wrap" && !scaleCustomized[i]) {
                 const bounds = getWrapRepeatSliderBounds(products[i]);
                 scales[i] = getScaleForWrapRepeats(products[i], bounds.defaultRepeats);
             }
@@ -2963,6 +2967,7 @@ ctx.lineWidth = 1;
 
         const perfectScale = calculatePerfectSeamlessScale(product);
         scales[productIndex] = perfectScale;
+        scaleCustomized[productIndex] = true;
         updateProductCanvas(productIndex);
 
         const metrics = getWrapRepeatMetrics(product, perfectScale);
@@ -3000,14 +3005,14 @@ ctx.lineWidth = 1;
     }
 
     function getWrapRepeatSliderBounds(product) {
-        if (!product) return { min: 0.8, max: 5.5, step: 0.05, defaultRepeats: 2.0 };
-        if (product.name === "Apple Pencil") return { min: 1.0, max: 4.2, step: 0.05, defaultRepeats: 2.0 };
-                if (product.name === "Mug Wrap") return { min: 0.75, max: 5.5, step: 0.05, defaultRepeats: 1.8 };
-        if (product.name === "20 oz Tumbler Wrap" || product.name === "30 oz Tumbler Wrap") return { min: 0.75, max: 5.8, step: 0.05, defaultRepeats: 1.9 };
-        if (product.name === "Bookmark") return { min: 0.9, max: 5.0, step: 0.05, defaultRepeats: 2.0 };
-        if (product.name === "5×7 Greeting Card") return { min: 0.8, max: 5.8, step: 0.05, defaultRepeats: 2.0 };
-        if (product.name === "Composition Notebook") return { min: 0.8, max: 6.0, step: 0.05, defaultRepeats: 2.2 };
-        return { min: 0.8, max: 5.5, step: 0.05, defaultRepeats: 2.0 };
+        if (!product) return { min: 0.8, max: 5.5, step: 0.05, defaultRepeats: 3.0 };
+        if (product.name === "Apple Pencil") return { min: 1.0, max: 4.2, step: 0.05, defaultRepeats: 3.0 };
+        if (product.name === "Mug Wrap") return { min: 0.75, max: 5.5, step: 0.05, defaultRepeats: 3.0 };
+        if (product.name === "20 oz Tumbler Wrap" || product.name === "30 oz Tumbler Wrap") return { min: 0.75, max: 5.8, step: 0.05, defaultRepeats: 3.5 };
+        if (product.name === "Bookmark") return { min: 0.9, max: 5.0, step: 0.05, defaultRepeats: 3.0 };
+        if (product.name === "5×7 Greeting Card") return { min: 0.8, max: 5.8, step: 0.05, defaultRepeats: 3.0 };
+        if (product.name === "Composition Notebook") return { min: 0.8, max: 6.0, step: 0.05, defaultRepeats: 3.5 };
+        return { min: 0.8, max: 5.5, step: 0.05, defaultRepeats: 3.0 };
     }
 
     function wrapSliderValueToDesiredRepeats(sliderValue, bounds) {
@@ -3293,8 +3298,17 @@ function drawPattern(ctx, targetW, targetH, scale, useTiled, product = null, pos
 
         if (useTiled && product) {
             const metrics = getWrapRepeatMetrics(product, scale);
-            const tileW = Math.max(1, metrics.tileW);
-            const tileH = Math.max(1, metrics.tileH);
+            // getWrapRepeatMetrics always sizes tiles against the product's real
+            // print-resolution dimensions (product.w/h), so repeatsX/repeatsY stay
+            // meaningful as "N repeats across the real product" everywhere they're
+            // read. But drawPattern() itself is also called to paint much smaller
+            // surfaces - product grid thumbnails - at a fraction of that size. Scale
+            // the tile pixels down by the same fraction so a thumbnail shows the
+            // identical repeat count/placement as the full-resolution render and
+            // export, just smaller, instead of a single zoomed-in crop of one tile.
+            const sizeRatio = Math.max(0.0001, targetW / Math.max(1, product.w));
+            const tileW = Math.max(1, metrics.tileW * sizeRatio);
+            const tileH = Math.max(1, metrics.tileH * sizeRatio);
             const axes = getAllowedPositionAxes(product);
             const offsetXPx = axes.x ? (safePosition.x || 0) / 100 * tileW : 0;
             const offsetYPx = axes.y ? (safePosition.y || 0) / 100 * tileH : 0;
@@ -3641,6 +3655,7 @@ function regenerateAllCanvases() {
                     products.splice(idx, 1);
                     selected.splice(idx, 1);
                     scales.splice(idx, 1);
+                    scaleCustomized.splice(idx, 1);
                     positions.splice(idx, 1);
                     if (originalImg) {
                         regenerateAllCanvases();
@@ -4977,6 +4992,7 @@ function regenerateAllCanvases() {
         } else {
             scales.push(1);
         }
+        scaleCustomized.push(false);
 
         if (originalImg) {
             regenerateAllCanvases();
@@ -5074,6 +5090,7 @@ function regenerateAllCanvases() {
             const desiredRepeats = wrapSliderValueToDesiredRepeats(sliderValue, bounds);
             const snappedScale = getScaleForWrapRepeats(prod, desiredRepeats);
             setProductRenderScale(idx, snappedScale);
+            scaleCustomized[idx] = true;
             const seamCount = getCurrentWrapRepeatCount(prod, idx);
             displayText = formatRepeatLabel(seamCount);
         } else {
@@ -5137,6 +5154,7 @@ function regenerateAllCanvases() {
                 const bounds = getWrapRepeatSliderBounds(products[currentZoomProductIndex]);
                 const defaultRepeats = bounds.defaultRepeats;
                 setProductRenderScale(currentZoomProductIndex, getScaleForWrapRepeats(products[currentZoomProductIndex], defaultRepeats));
+                scaleCustomized[currentZoomProductIndex] = false;
                 zoomScaleSlider.value = String(desiredRepeatsToWrapSliderValue(defaultRepeats, bounds));
                 zoomScaleValue.textContent = formatRepeatLabel(defaultRepeats);
             } else {
