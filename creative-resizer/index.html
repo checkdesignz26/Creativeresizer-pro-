@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Creative Resizer | Free Image Resizer</title>
+<title>Creative Resizer | Free Pattern Resizer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap" rel="stylesheet">
@@ -80,6 +80,7 @@ button:focus-visible, input:focus-visible, .upload:focus-visible { outline: 3px 
 .seg button:not(.active):hover { background: var(--secondary-hover); }
 .dims { display: flex; gap: 10px; align-items: flex-end; margin-top: 14px; }
 .dims .field { flex: 1; min-width: 0; }
+.dims .times { flex: 0 0 auto; font-weight: 600; font-size: 18px; padding-bottom: 10px; }
 .dims label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
 .dims input[type="number"] {
     width: 100%;
@@ -91,9 +92,13 @@ button:focus-visible, input:focus-visible, .upload:focus-visible { outline: 3px 
     padding: 12px 16px;
     min-height: 44px;
 }
-.lock { flex: 0 0 auto; min-width: 44px; padding: 0 12px; font-size: 18px; background: var(--secondary); color: var(--text); border-color: var(--border); }
-.lock[aria-pressed="true"] { background: var(--teal); color: #fff; border-color: var(--teal-dark); }
-.lock[aria-pressed="true"]:hover:not(:disabled) { background: var(--teal-dark); }
+.row-between { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; cursor: pointer; margin: 4px 0; }
+input[type="range"]::-webkit-slider-runnable-track { box-sizing: border-box; height: 10px; border-radius: 999px; background: #aaa190; border: 1px solid #6f6657; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: 26px; height: 26px; margin-top: -9px; border-radius: 50%; background: var(--teal); border: 3px solid #f9f6f0; box-shadow: 0 0 0 1px #0b4a46; }
+input[type="range"]::-moz-range-track { box-sizing: border-box; height: 10px; border-radius: 999px; background: #aaa190; border: 1px solid #6f6657; }
+input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 26px; height: 26px; border-radius: 50%; background: var(--teal); border: 3px solid #f9f6f0; box-shadow: 0 0 0 1px #0b4a46; }
+input[type="range"]:disabled { opacity: 0.5; cursor: not-allowed; }
 .hidden { display: none !important; }
 .stage { background: var(--stage); border: 1px solid var(--border-soft); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 canvas#preview { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
@@ -109,28 +114,34 @@ canvas#preview { max-width: 100%; height: auto; border: 1px solid var(--border);
 <div class="wrap">
 <header>
     <h1>✿ Creative Resizer ✿</h1>
-    <div class="subtitle">Resize your image. Download it.</div>
+    <div class="subtitle">Tile your pattern to any size. Download it.</div>
 </header>
 
 <main class="panel">
-    <div class="upload" id="upload" tabindex="0" role="button" aria-label="Choose an image">
-        <div class="title" id="uploadTitle">drop your image here, or tap to choose</div>
+    <div class="upload" id="upload" tabindex="0" role="button" aria-label="Choose your pattern">
+        <div class="title" id="uploadTitle">drop your pattern here, or tap to choose</div>
         <div class="sub" id="uploadSub">PNG, JPG or WEBP</div>
     </div>
     <input type="file" id="file" accept="image/png,image/jpeg,image/webp" hidden>
 
     <div class="card">
-        <div class="label">New size</div>
+        <div class="label">Size</div>
         <div class="seg" id="unitSeg">
-            <button type="button" class="active" data-unit="px">pixels</button>
-            <button type="button" data-unit="in">inches (300 DPI)</button>
+            <button type="button" class="active" data-unit="in">inches (300 DPI)</button>
+            <button type="button" data-unit="px">pixels</button>
         </div>
         <div class="dims">
-            <div class="field"><label for="w">Width</label><input type="number" id="w" min="1" step="any" inputmode="decimal" disabled></div>
-            <button type="button" class="lock" id="lock" aria-pressed="true" aria-label="Keep proportions" title="Keep proportions">🔒</button>
-            <div class="field"><label for="h">Height</label><input type="number" id="h" min="1" step="any" inputmode="decimal" disabled></div>
+            <div class="field"><label for="w">Width</label><input type="number" id="w" min="0.1" step="0.01" inputmode="decimal" value="12"></div>
+            <div class="times">×</div>
+            <div class="field"><label for="h">Height</label><input type="number" id="h" min="0.1" step="0.01" inputmode="decimal" value="12"></div>
         </div>
-        <div class="hint" id="sizeHint">Choose an image to begin.</div>
+        <div class="hint" id="sizeHint"></div>
+    </div>
+
+    <div class="card">
+        <div class="row-between"><label for="scale">Pattern size</label><span id="scaleLabel">3 repeats across</span></div>
+        <input type="range" id="scale" min="1" max="10" step="0.5" value="3" disabled>
+        <div class="hint">Fewer repeats = bigger motifs. More repeats = smaller motifs.</div>
     </div>
 
     <div class="stage">
@@ -141,9 +152,9 @@ canvas#preview { max-width: 100%; height: auto; border: 1px solid var(--border);
 
     <div class="actions">
         <button type="button" class="download" id="download" disabled>⬇ download PNG</button>
-        <button type="button" class="secondary" id="replace" disabled>choose another image</button>
+        <button type="button" class="secondary" id="replace" disabled>choose another pattern</button>
     </div>
-    <div class="note" id="note">Your image stays on your device. Nothing is uploaded.</div>
+    <div class="note" id="note">Your pattern stays on your device. Nothing is uploaded.</div>
 </main>
 </div>
 
@@ -152,10 +163,10 @@ canvas#preview { max-width: 100%; height: auto; border: 1px solid var(--border);
     var DPI = 300;
     var MAX_PIXELS = 16000000; // iPad Safari canvas limit is ~16.7M pixels
     var $ = function (id) { return document.getElementById(id); };
-    var upload = $('upload'), fileInput = $('file'), wIn = $('w'), hIn = $('h'), lockBtn = $('lock');
+    var upload = $('upload'), fileInput = $('file'), wIn = $('w'), hIn = $('h'), scale = $('scale'), scaleLabel = $('scaleLabel');
     var preview = $('preview'), empty = $('empty'), info = $('info'), sizeHint = $('sizeHint');
     var downloadBtn = $('download'), replaceBtn = $('replace'), note = $('note');
-    var img = null, fileBase = 'creative_resizer', unit = 'px', locked = true;
+    var img = null, fileBase = 'creative_resizer', unit = 'in';
 
     function toUnit(px) { return unit === 'px' ? Math.round(px) : Math.round(px / DPI * 100) / 100; }
     function toPx(v) { return Math.round(unit === 'px' ? v : v * DPI); }
@@ -171,31 +182,37 @@ canvas#preview { max-width: 100%; height: auto; border: 1px solid var(--border);
         return { w: w, h: h, reduced: reduced };
     }
 
+    // One routine draws the tiled pattern at any size, so the preview and the
+    // downloaded file show the same repeat count and placement.
     function render(ctx, W, H) {
         ctx.clearRect(0, 0, W, H);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
-        // Step down in halves when shrinking a lot so the result stays sharp.
-        var src = img, sw = img.naturalWidth, sh = img.naturalHeight;
-        while (sw / 2 >= W && sh / 2 >= H) {
-            var c = document.createElement('canvas');
-            c.width = Math.max(1, Math.floor(sw / 2)); c.height = Math.max(1, Math.floor(sh / 2));
-            var cx = c.getContext('2d');
-            cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high';
-            cx.drawImage(src, 0, 0, c.width, c.height);
-            src = c; sw = c.width; sh = c.height;
+        var across = parseFloat(scale.value) || 3;
+        var tw = W / across;
+        var th = tw * (img.naturalHeight / img.naturalWidth);
+        var cols = Math.ceil(across) + 1, rows = Math.ceil(H / th) + 1;
+        for (var r = 0; r < rows; r++) {
+            var y0 = Math.round(r * th), y1 = Math.round((r + 1) * th);
+            if (y0 >= H) break;
+            for (var c = 0; c < cols; c++) {
+                var x0 = Math.round(c * tw), x1 = Math.round((c + 1) * tw);
+                if (x0 >= W) break;
+                ctx.drawImage(img, x0, y0, x1 - x0, y1 - y0);
+            }
         }
-        ctx.drawImage(src, 0, 0, W, H);
     }
 
     function refresh() {
+        var n = parseFloat(scale.value);
+        scaleLabel.textContent = (n === 1 ? '1 repeat' : n + ' repeats') + ' across';
         var t = getTarget();
-        if (!img) return;
         if (!t) { sizeHint.textContent = 'Enter a width and height.'; downloadBtn.disabled = true; return; }
-        sizeHint.textContent = 'Original ' + img.naturalWidth + ' × ' + img.naturalHeight + ' px → ' + t.w + ' × ' + t.h + ' px';
+        sizeHint.textContent = t.w + ' × ' + t.h + ' px' + (unit === 'in' ? ' at ' + DPI + ' DPI' : '');
         note.textContent = t.reduced
             ? 'That size is larger than your device can export, so it will be saved a little smaller.'
-            : 'Your image stays on your device. Nothing is uploaded.';
+            : 'Your pattern stays on your device. Nothing is uploaded.';
+        if (!img) return;
         var k = Math.min(1, 560 / Math.max(t.w, t.h));
         preview.width = Math.max(1, Math.round(t.w * k));
         preview.height = Math.max(1, Math.round(t.h * k));
@@ -204,15 +221,6 @@ canvas#preview { max-width: 100%; height: auto; border: 1px solid var(--border);
         empty.classList.add('hidden');
         info.textContent = t.w + ' × ' + t.h + ' px';
         downloadBtn.disabled = false;
-    }
-
-    function onDim(changed) {
-        if (locked && img) {
-            var ratio = img.naturalWidth / img.naturalHeight;
-            if (changed === 'w') { var w = parseFloat(wIn.value); if (w > 0) hIn.value = String(toUnit(toPx(w) / ratio)); }
-            else { var h = parseFloat(hIn.value); if (h > 0) wIn.value = String(toUnit(toPx(h) * ratio)); }
-        }
-        refresh();
     }
 
     function setUnit(u) {
@@ -237,10 +245,8 @@ canvas#preview { max-width: 100%; height: auto; border: 1px solid var(--border);
             fileBase = (file.name.replace(/\.[^.]+$/, '') || 'creative_resizer').replace(/[^a-z0-9_-]+/gi, '_');
             $('uploadTitle').textContent = file.name;
             $('uploadSub').textContent = im.naturalWidth + ' × ' + im.naturalHeight + ' px · tap to change';
-            wIn.disabled = hIn.disabled = false;
+            scale.disabled = false;
             replaceBtn.disabled = false;
-            wIn.value = String(toUnit(im.naturalWidth));
-            hIn.value = String(toUnit(im.naturalHeight));
             refresh();
         };
         im.onerror = function () { $('uploadSub').textContent = 'That image could not be read. Try another file.'; };
@@ -271,16 +277,9 @@ canvas#preview { max-width: 100%; height: auto; border: 1px solid var(--border);
     fileInput.addEventListener('change', function () { loadFile(fileInput.files[0]); fileInput.value = ''; });
     replaceBtn.addEventListener('click', function () { fileInput.click(); });
     downloadBtn.addEventListener('click', download);
-    wIn.addEventListener('input', function () { onDim('w'); });
-    hIn.addEventListener('input', function () { onDim('h'); });
-    lockBtn.addEventListener('click', function () {
-        locked = !locked;
-        lockBtn.setAttribute('aria-pressed', String(locked));
-        lockBtn.textContent = locked ? '🔒' : '🔓';
-        lockBtn.title = locked ? 'Keep proportions' : 'Proportions unlocked (image will stretch)';
-        if (locked && img) onDim('w');
-    });
+    [wIn, hIn, scale].forEach(function (el) { el.addEventListener('input', refresh); });
     document.querySelectorAll('#unitSeg button').forEach(function (b) { b.addEventListener('click', function () { setUnit(b.dataset.unit); }); });
+    refresh();
 })();
 </script>
 </body>
