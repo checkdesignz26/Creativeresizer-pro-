@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creative Resizer | Free Pattern Resizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-start: #d6cfc0;
+    --bg-end: #cdc6b6;
+    --panel: #ebe6dc;
+    --card: #f5f1e9;
+    --input: #f9f6f0;
+    --border: #7d7362;
+    --border-soft: #b3aa97;
+    --text: #1f2326;
+    --text-dim: #34383b;
+    --teal: #0f6b66;
+    --teal-dark: #0b5753;
+    --secondary: #ddd6c8;
+    --secondary-hover: #cfc7b6;
+    --stage: #d3ccbd;
+    --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: var(--font-ui);
+    font-size: 15px;
+    color: var(--text);
+    background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+    -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 760px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 22px; }
+h1 {
+    font-family: 'Caveat', cursive;
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1.05;
+}
+.subtitle { margin-top: 6px; font-size: 17px; font-weight: 500; color: var(--text-dim); }
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border-soft);
+    border-radius: 28px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.card {
+    background: var(--card);
+    border: 1px solid var(--border-soft);
+    border-radius: 22px;
+    padding: 16px;
+}
+.card > label, .card > .label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+.hint { font-size: 13px; line-height: 1.45; color: var(--text-dim); margin-top: 8px; }
+.upload {
+    border: 2px dashed var(--border);
+    border-radius: 22px;
+    background: var(--card);
+    padding: 28px 16px;
+    text-align: center;
+    cursor: pointer;
+}
+.upload.drag { border-color: var(--teal); background: #d0e2dd; }
+.upload .title { font-size: 17px; font-weight: 600; }
+.upload .sub { font-size: 13px; color: var(--text-dim); margin-top: 6px; }
+button, select, input[type="number"] { font-family: inherit; }
+button {
+    background: var(--teal);
+    color: #fff;
+    border: 1px solid var(--teal-dark);
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    padding: 11px 22px;
+    min-height: 44px;
+    cursor: pointer;
+}
+button:hover:not(:disabled) { background: var(--teal-dark); }
+button:active:not(:disabled) { transform: scale(0.98); }
+button:disabled { background: #cfc8b9; border-color: var(--border-soft); color: #5c574e; cursor: not-allowed; }
+button.secondary { background: var(--secondary); color: var(--text); border-color: var(--border); }
+button.secondary:hover:not(:disabled) { background: var(--secondary-hover); }
+button:focus-visible, select:focus-visible, input:focus-visible, .upload:focus-visible {
+    outline: 3px solid var(--teal);
+    outline-offset: 2px;
+}
+.seg { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg button { flex: 1 1 140px; font-size: 14px; }
+.seg button:not(.active) { background: var(--secondary); color: var(--text); border-color: var(--border); }
+.seg button:not(.active):hover { background: var(--secondary-hover); }
+select, input[type="number"] {
+    width: 100%;
+    background: var(--input);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 15px;
+    padding: 12px 16px;
+    min-height: 44px;
+}
+.dims { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+.dims span { font-weight: 600; }
+.hidden { display: none !important; }
+input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 28px; background: transparent; cursor: pointer; margin: 4px 0;
+}
+input[type="range"]::-webkit-slider-runnable-track { box-sizing: border-box; height: 10px; border-radius: 999px; background: #aaa190; border: 1px solid #6f6657; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: 26px; height: 26px; margin-top: -9px; border-radius: 50%; background: var(--teal); border: 3px solid #f9f6f0; box-shadow: 0 0 0 1px #0b4a46; }
+input[type="range"]::-moz-range-track { box-sizing: border-box; height: 10px; border-radius: 999px; background: #aaa190; border: 1px solid #6f6657; }
+input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 26px; height: 26px; border-radius: 50%; background: var(--teal); border: 3px solid #f9f6f0; box-shadow: 0 0 0 1px #0b4a46; }
+.row-between { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.stage {
+    background: var(--stage);
+    border: 1px solid var(--border-soft);
+    border-radius: 22px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+canvas#preview { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.stage .info { font-size: 14px; font-weight: 500; text-align: center; }
+.stage .empty { padding: 40px 0; color: var(--text-dim); font-size: 15px; text-align: center; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.actions .download { flex: 1 1 220px; font-size: 16px; padding: 12px 24px; }
+.note { font-size: 13px; color: var(--text-dim); text-align: center; line-height: 1.5; }
+.pro { background: var(--card); border: 1px solid var(--border-soft); border-radius: 18px; padding: 12px 16px; font-size: 14px; text-align: center; line-height: 1.5; }
+@media (max-width: 520px) { h1 { font-size: 44px; } .panel { padding: 14px; border-radius: 22px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+    <h1>✿ Creative Resizer ✿</h1>
+    <div class="subtitle">Resize your pattern. Download it. That's it.</div>
+</header>
+
+<main class="panel">
+    <div class="upload" id="upload" tabindex="0" role="button" aria-label="Choose an image">
+        <div class="title" id="uploadTitle">drop your design here, or tap to choose</div>
+        <div class="sub" id="uploadSub">PNG, JPG or WEBP</div>
+    </div>
+    <input type="file" id="file" accept="image/png,image/jpeg,image/webp" hidden>
+
+    <div class="card">
+        <label for="size">Size</label>
+        <select id="size"></select>
+        <div class="dims hidden" id="customDims">
+            <input type="number" id="cw" min="0.5" max="30" step="any" value="12" aria-label="Width in inches">
+            <span>×</span>
+            <input type="number" id="ch" min="0.5" max="30" step="any" value="12" aria-label="Height in inches">
+            <span>in</span>
+        </div>
+        <div class="hint" id="sizeHint"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">Layout</div>
+        <div class="seg" id="modeSeg">
+            <button type="button" class="active" data-mode="repeat">repeat pattern</button>
+            <button type="button" data-mode="fill">fill size (crop to fit)</button>
+        </div>
+        <div id="scaleBox" style="margin-top:14px;">
+            <div class="row-between"><span>Pattern size</span><span id="scaleLabel">3 repeats across</span></div>
+            <input type="range" id="scale" min="1" max="10" step="0.5" value="3" aria-label="Repeats across">
+            <div class="hint">Fewer repeats = bigger motifs. More repeats = smaller motifs.</div>
+        </div>
+    </div>
+
+    <div class="stage">
+        <canvas id="preview" class="hidden"></canvas>
+        <div class="empty" id="empty">your preview will appear here</div>
+        <div class="info" id="info"></div>
+    </div>
+
+    <div class="actions">
+        <button type="button" class="download" id="download" disabled>⬇ download PNG</button>
+        <button type="button" class="secondary" id="replace" disabled>choose another image</button>
+    </div>
+    <div class="note" id="note">Your image stays on your device. Nothing is uploaded.</div>
+    <div class="pro">Need mock-ups, batch ZIP downloads and custom products? That's <strong>Creative Resizer Pro</strong>.</div>
+</main>
+</div>
+
+<script>
+(function () {
+    var DPI = 300;
+    var MAX_PIXELS = 16000000; // iPad Safari canvas limit is ~16.7M pixels
+    var PRESETS = [
+        { name: 'Apple Pencil', w: 5.375, h: 1.25 },
+        { name: '20 oz Tumbler Wrap', w: 9.25, h: 8.2 },
+        { name: '30 oz Tumbler Wrap', w: 9.55, h: 10.25 },
+        { name: 'Mug Wrap', w: 8.5, h: 3.5 },
+        { name: 'Bookmark', w: 2, h: 6 },
+        { name: '5×7 Greeting Card', w: 5, h: 7 },
+        { name: 'Composition Notebook', w: 7.25, h: 9.5 },
+        { name: '12 × 12 in square', w: 12, h: 12 }
+    ];
+
+    var $ = function (id) { return document.getElementById(id); };
+    var upload = $('upload'), fileInput = $('file'), sizeSel = $('size'), customDims = $('customDims');
+    var cw = $('cw'), ch = $('ch'), scale = $('scale'), scaleLabel = $('scaleLabel'), scaleBox = $('scaleBox');
+    var preview = $('preview'), empty = $('empty'), info = $('info'), sizeHint = $('sizeHint');
+    var downloadBtn = $('download'), replaceBtn = $('replace'), note = $('note');
+    var img = null, fileBase = 'creative_resizer', mode = 'repeat';
+
+    PRESETS.forEach(function (p, i) {
+        var o = document.createElement('option');
+        o.value = String(i);
+        o.textContent = p.name + ' — ' + p.w + '" × ' + p.h + '"';
+        sizeSel.appendChild(o);
+    });
+    var custom = document.createElement('option');
+    custom.value = 'custom';
+    custom.textContent = 'Custom size…';
+    sizeSel.appendChild(custom);
+    sizeSel.value = '1';
+
+    function getSize() {
+        var w, h, name;
+        if (sizeSel.value === 'custom') {
+            w = parseFloat(cw.value); h = parseFloat(ch.value); name = 'custom';
+        } else {
+            var p = PRESETS[parseInt(sizeSel.value, 10)];
+            w = p.w; h = p.h; name = p.name;
+        }
+        if (!(w > 0) || !(h > 0)) return null;
+        w = Math.min(w, 30); h = Math.min(h, 30);
+        var pw = Math.round(w * DPI), ph = Math.round(h * DPI), reduced = false;
+        if (pw * ph > MAX_PIXELS) {
+            var f = Math.sqrt(MAX_PIXELS / (pw * ph));
+            pw = Math.floor(pw * f); ph = Math.floor(ph * f); reduced = true;
+        }
+        return { w: w, h: h, pw: pw, ph: ph, name: name, reduced: reduced };
+    }
+
+    // Draws the design into any W×H canvas context. Preview and export use the
+    // same function with proportional sizes, so they show identical placement.
+    function draw(ctx, W, H) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        if (mode === 'repeat') {
+            var across = parseFloat(scale.value) || 3;
+            var tw = W / across;
+            var th = tw * (img.naturalHeight / img.naturalWidth);
+            var cols = Math.ceil(across) + 1, rows = Math.ceil(H / th) + 1;
+            for (var r = 0; r < rows; r++) {
+                var y0 = Math.round(r * th), y1 = Math.round((r + 1) * th);
+                for (var c = 0; c < cols; c++) {
+                    var x0 = Math.round(c * tw), x1 = Math.round((c + 1) * tw);
+                    if (x0 >= W || y0 >= H) continue;
+                    ctx.drawImage(img, x0, y0, x1 - x0, y1 - y0);
+                }
+            }
+        } else {
+            var s = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+            var dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+            ctx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+        }
+    }
+
+    function refresh() {
+        var size = getSize();
+        customDims.classList.toggle('hidden', sizeSel.value !== 'custom');
+        scaleBox.classList.toggle('hidden', mode !== 'repeat');
+        var n = parseFloat(scale.value);
+        scaleLabel.textContent = (n === 1 ? '1 repeat' : n + ' repeats') + ' across';
+        if (!size) { sizeHint.textContent = 'Enter a width and height in inches.'; downloadBtn.disabled = true; return; }
+        sizeHint.textContent = size.w + '" × ' + size.h + '" at ' + DPI + ' DPI = ' + size.pw + ' × ' + size.ph + ' px';
+        note.textContent = size.reduced
+            ? 'This size is larger than your device can export at 300 DPI, so it will be saved at a slightly lower resolution.'
+            : 'Your image stays on your device. Nothing is uploaded.';
+        if (!img) return;
+        var maxPrev = 560, k = Math.min(1, maxPrev / Math.max(size.pw, size.ph));
+        preview.width = Math.max(1, Math.round(size.pw * k));
+        preview.height = Math.max(1, Math.round(size.ph * k));
+        draw(preview.getContext('2d'), preview.width, preview.height);
+        preview.classList.remove('hidden');
+        empty.classList.add('hidden');
+        info.textContent = size.name + ' · ' + size.w + '" × ' + size.h + '"';
+        downloadBtn.disabled = false;
+    }
+
+    function loadFile(file) {
+        if (!file || !/^image\/(png|jpe?g|webp)$/.test(file.type)) {
+            $('uploadSub').textContent = 'Please choose a PNG, JPG or WEBP image.';
+            return;
+        }
+        var url = URL.createObjectURL(file), im = new Image();
+        im.onload = function () {
+            img = im;
+            fileBase = (file.name.replace(/\.[^.]+$/, '') || 'creative_resizer').replace(/[^a-z0-9_-]+/gi, '_');
+            $('uploadTitle').textContent = file.name;
+            $('uploadSub').textContent = im.naturalWidth + ' × ' + im.naturalHeight + ' px · tap to change';
+            replaceBtn.disabled = false;
+            refresh();
+        };
+        im.onerror = function () { $('uploadSub').textContent = 'That image could not be read. Try another file.'; };
+        im.src = url;
+    }
+
+    function download() {
+        var size = getSize();
+        if (!img || !size) return;
+        var cv = document.createElement('canvas');
+        cv.width = size.pw; cv.height = size.ph;
+        draw(cv.getContext('2d'), cv.width, cv.height);
+        cv.toBlob(function (blob) {
+            if (!blob) { note.textContent = 'Could not create the file. Try a smaller size.'; return; }
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = fileBase + '_' + size.name.replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.png';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+        }, 'image/png');
+    }
+
+    upload.addEventListener('click', function () { fileInput.click(); });
+    upload.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+    ['dragenter', 'dragover'].forEach(function (t) { upload.addEventListener(t, function (e) { e.preventDefault(); upload.classList.add('drag'); }); });
+    ['dragleave', 'drop'].forEach(function (t) { upload.addEventListener(t, function (e) { e.preventDefault(); upload.classList.remove('drag'); }); });
+    upload.addEventListener('drop', function (e) { loadFile(e.dataTransfer.files[0]); });
+    fileInput.addEventListener('change', function () { loadFile(fileInput.files[0]); fileInput.value = ''; });
+    replaceBtn.addEventListener('click', function () { fileInput.click(); });
+    downloadBtn.addEventListener('click', download);
+    [sizeSel, cw, ch, scale].forEach(function (el) { el.addEventListener('input', refresh); });
+    document.querySelectorAll('#modeSeg button').forEach(function (b) {
+        b.addEventListener('click', function () {
+            mode = b.dataset.mode;
+            document.querySelectorAll('#modeSeg button').forEach(function (x) { x.classList.toggle('active', x === b); });
+            refresh();
+        });
+    });
+    refresh();
+})();
+</script>
+</body>
+</html>
